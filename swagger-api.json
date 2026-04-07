@@ -1,0 +1,552 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Dashboard API",
+    "description": "Generic dashboard API that drives a configurable frontend with tabs, filters, charts, and detail tables.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/dashboards": {
+      "get": {
+        "summary": "List available dashboards",
+        "description": "Returns the list of dashboard tabs the frontend should render.",
+        "operationId": "listDashboards",
+        "responses": {
+          "200": {
+            "description": "List of dashboards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardSummary"
+                  }
+                },
+                "example": [
+                  { "id": "plaatsingen", "label": "Plaatsingen" },
+                  { "id": "contactmomenten", "label": "Contactmomenten" },
+                  { "id": "aanbod", "label": "Aanbod" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboards/{dashboardId}/config": {
+      "get": {
+        "summary": "Get dashboard configuration",
+        "description": "Returns the full configuration for a dashboard: filter definitions, chart settings, summary card labels, and detail table column definitions. The frontend uses this to render the UI without any hardcoded knowledge of a specific dashboard.",
+        "operationId": "getDashboardConfig",
+        "parameters": [
+          { "$ref": "#/components/parameters/dashboardId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardConfig"
+                },
+                "example": {
+                  "id": "aanbod",
+                  "label": "Aanbod",
+                  "filters": [
+                    { "key": "year", "label": "Jaar", "allLabel": "Alle jaren" },
+                    { "key": "team", "label": "Team", "allLabel": "Alle teams" },
+                    { "key": "coach", "label": "Coach", "allLabel": "Alle coaches" },
+                    { "key": "aanbodnaam", "label": "Aanbodnaam", "allLabel": "Alle aanbod" },
+                    { "key": "afsluitreden", "label": "Afsluitreden", "allLabel": "Alle afsluitredenen" }
+                  ],
+                  "chart": {
+                    "type": "stacked-bar",
+                    "stackField": "aanbodnaam",
+                    "xLabel": "Maand",
+                    "yLabel": "Aantal",
+                    "colors": ["#0f62fe", "#198038", "#8a3ffc", "#ff832b"]
+                  },
+                  "summaryCards": [
+                    { "key": "total", "label": "Totaal gestart aanbod" },
+                    { "key": "avgPerMonth", "label": "Gemiddeld per maand" },
+                    { "key": "topMonth", "label": "Beste maand" }
+                  ],
+                  "detailTable": {
+                    "columns": [
+                      { "key": "date", "label": "Datum start", "type": "date" },
+                      { "key": "aanbodnaam", "label": "Aanbodnaam", "type": "string" },
+                      { "key": "inwoner", "label": "Inwoner", "type": "string" },
+                      { "key": "administratienummer", "label": "Administratienr.", "type": "string" },
+                      { "key": "coach", "label": "Coach", "type": "string" },
+                      { "key": "team", "label": "Team", "type": "string" },
+                      { "key": "afsluitreden", "label": "Afsluitreden", "type": "string" }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/dashboards/{dashboardId}/filters": {
+      "get": {
+        "summary": "Get available filter options",
+        "description": "Returns the available options for each filter, narrowed down by the currently active filters (cascading). Each filter's options are computed by applying all other active filters, so unavailable combinations are excluded.",
+        "operationId": "getFilterOptions",
+        "parameters": [
+          { "$ref": "#/components/parameters/dashboardId" },
+          { "$ref": "#/components/parameters/filterParams" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Available filter options per filter key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterOptions"
+                },
+                "example": {
+                  "year": ["2026", "2025", "2024"],
+                  "team": ["Team Inburgering", "Team Volwassenen"],
+                  "coach": ["Ahmed El Amrani", "Fatima Yilmaz", "Mark Jansen", "Eva de Groot"],
+                  "aanbodnaam": ["Taalcoaching", "Werkfit traject", "Duale inburgering"],
+                  "afsluitreden": ["Nog actief", "Succesvol afgerond", "Voortijdig gestopt"]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/dashboards/{dashboardId}/summary": {
+      "get": {
+        "summary": "Get summary card values",
+        "description": "Returns computed summary values (total count, average per month, best month) for the currently filtered data set.",
+        "operationId": "getSummary",
+        "parameters": [
+          { "$ref": "#/components/parameters/dashboardId" },
+          { "$ref": "#/components/parameters/filterParams" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary values",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryData"
+                },
+                "example": {
+                  "total": 342,
+                  "avgPerMonth": 25,
+                  "topMonth": {
+                    "label": "Mrt 2026",
+                    "value": 38
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/dashboards/{dashboardId}/chart": {
+      "get": {
+        "summary": "Get chart data",
+        "description": "Returns monthly bucketed data for the chart. For simple bar charts, returns a single series. For stacked bar charts, returns multiple series keyed by the stack field (e.g. aanbodnaam).",
+        "operationId": "getChartData",
+        "parameters": [
+          { "$ref": "#/components/parameters/dashboardId" },
+          { "$ref": "#/components/parameters/filterParams" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chart data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChartData"
+                },
+                "example": {
+                  "labels": ["Jan 2026", "Feb 2026", "Mrt 2026"],
+                  "series": [
+                    {
+                      "label": "Taalcoaching",
+                      "data": [5, 3, 7]
+                    },
+                    {
+                      "label": "Werkfit traject",
+                      "data": [4, 6, 2]
+                    },
+                    {
+                      "label": "Participatieplaats",
+                      "data": [3, 2, 5]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/dashboards/{dashboardId}/details": {
+      "get": {
+        "summary": "Get detail table rows",
+        "description": "Returns the individual records for a selected month, optionally narrowed to a specific stack category (e.g. a specific aanbodnaam). Used when the user clicks a bar or bar segment in the chart.",
+        "operationId": "getDetails",
+        "parameters": [
+          { "$ref": "#/components/parameters/dashboardId" },
+          {
+            "name": "month",
+            "in": "query",
+            "required": true,
+            "description": "The month to retrieve details for, in YYYY-MM format.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$"
+            },
+            "example": "2026-03"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "description": "Optional category to narrow results within the month (e.g. a specific aanbodnaam for stacked charts). Maps to the stack field defined in the dashboard config.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Taalcoaching"
+          },
+          { "$ref": "#/components/parameters/filterParams" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail rows",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailData"
+                },
+                "example": {
+                  "title": "Taalcoaching in Mrt 2026 (7)",
+                  "rows": [
+                    {
+                      "date": "2026-03-02",
+                      "aanbodnaam": "Taalcoaching",
+                      "inwoner": "Mohammed de Vries",
+                      "administratienummer": "1234567",
+                      "coach": "Ahmed El Amrani",
+                      "team": "Team Inburgering",
+                      "afsluitreden": "Nog actief"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "dashboardId": {
+        "name": "dashboardId",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier of the dashboard (e.g. plaatsingen, contactmomenten, aanbod).",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "filterParams": {
+        "name": "filters",
+        "in": "query",
+        "required": false,
+        "description": "Active filter values as key=value pairs. Keys correspond to the filter keys from the dashboard config. Multiple filters are passed as separate query parameters, e.g. ?year=2026&team=Team+Inburgering&coach=Ahmed+El+Amrani",
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "DashboardSummary": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique dashboard identifier, used in URL paths."
+          },
+          "label": {
+            "type": "string",
+            "description": "Display label for the tab."
+          }
+        }
+      },
+      "DashboardConfig": {
+        "type": "object",
+        "required": ["id", "label", "filters", "chart", "summaryCards", "detailTable"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilterDef"
+            }
+          },
+          "chart": {
+            "$ref": "#/components/schemas/ChartConfig"
+          },
+          "summaryCards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SummaryCardDef"
+            }
+          },
+          "detailTable": {
+            "$ref": "#/components/schemas/DetailTableConfig"
+          }
+        }
+      },
+      "FilterDef": {
+        "type": "object",
+        "required": ["key", "label", "allLabel"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Filter key, used as query parameter name."
+          },
+          "label": {
+            "type": "string",
+            "description": "Display label for the filter dropdown."
+          },
+          "allLabel": {
+            "type": "string",
+            "description": "Label for the 'all' option (no filter applied)."
+          }
+        }
+      },
+      "ChartConfig": {
+        "type": "object",
+        "required": ["type", "xLabel", "yLabel"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["bar", "stacked-bar"],
+            "description": "Chart type. 'bar' for a single series, 'stacked-bar' for multiple series stacked."
+          },
+          "stackField": {
+            "type": "string",
+            "description": "For stacked-bar charts, the data field used to split into series. Omitted for simple bar charts."
+          },
+          "xLabel": {
+            "type": "string"
+          },
+          "yLabel": {
+            "type": "string"
+          },
+          "colors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Ordered list of hex colors for chart series."
+          }
+        }
+      },
+      "SummaryCardDef": {
+        "type": "object",
+        "required": ["key", "label"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Key matching a field in the SummaryData response."
+          },
+          "label": {
+            "type": "string",
+            "description": "Display label for the summary card."
+          }
+        }
+      },
+      "DetailTableConfig": {
+        "type": "object",
+        "required": ["columns"],
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ColumnDef"
+            }
+          }
+        }
+      },
+      "ColumnDef": {
+        "type": "object",
+        "required": ["key", "label", "type"],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Field key in the detail row objects."
+          },
+          "label": {
+            "type": "string",
+            "description": "Column header label."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["string", "date", "number"],
+            "description": "Data type, used for formatting and sorting."
+          }
+        }
+      },
+      "FilterOptions": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": "Map of filter key to available option values, already sorted."
+      },
+      "SummaryData": {
+        "type": "object",
+        "required": ["total", "avgPerMonth", "topMonth"],
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "Total count of items matching the active filters."
+          },
+          "avgPerMonth": {
+            "type": "integer",
+            "description": "Average items per month (rounded)."
+          },
+          "topMonth": {
+            "type": "object",
+            "required": ["label", "value"],
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Display label for the month (e.g. 'Mrt 2026')."
+              },
+              "value": {
+                "type": "integer",
+                "description": "Count for the top month."
+              }
+            }
+          }
+        }
+      },
+      "ChartData": {
+        "type": "object",
+        "required": ["labels", "series"],
+        "properties": {
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Month labels for the x-axis (e.g. 'Jan 2026')."
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChartSeries"
+            },
+            "description": "One series for simple bar charts, multiple for stacked."
+          }
+        }
+      },
+      "ChartSeries": {
+        "type": "object",
+        "required": ["label", "data"],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Series label (dashboard name for simple bar, category name for stacked)."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "Values per month, matching the labels array."
+          }
+        }
+      },
+      "DetailData": {
+        "type": "object",
+        "required": ["title", "rows"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Display title for the detail section (e.g. 'Taalcoaching in Mrt 2026 (7)')."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "description": "Row objects with keys matching the column definitions from the dashboard config."
+          }
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Dashboard not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "error": "Dashboard 'unknown' not found"
+            }
+          }
+        }
+      }
+    }
+  }
+}
