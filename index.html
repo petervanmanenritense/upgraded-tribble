@@ -3,13 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plaatsing Dashboard</title>
+  <title>Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; }
-    .header { background: #1a3a5c; color: white; padding: 20px 32px; }
-    .header h1 { font-size: 22px; font-weight: 600; }
+    .header { background: #1a3a5c; color: white; padding: 20px 32px 0; }
+    .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
+    .tabs { display: flex; gap: 0; }
+    .tab { padding: 10px 24px; cursor: pointer; font-size: 14px; font-weight: 600; border-radius: 8px 8px 0 0; color: rgba(255,255,255,0.6); transition: background 0.15s; }
+    .tab:hover { color: rgba(255,255,255,0.85); }
+    .tab.active { background: #f5f7fa; color: #1a3a5c; }
     .filters { display: flex; gap: 16px; padding: 20px 32px; background: white; border-bottom: 1px solid #e0e4e8; flex-wrap: wrap; align-items: flex-end; }
     .filter-group { display: flex; flex-direction: column; gap: 4px; }
     .filter-group label { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -30,78 +34,113 @@
     .hint { font-size: 13px; color: #999; margin-top: 8px; }
     canvas { cursor: pointer; }
     .hidden { display: none; }
+    .view { display: none; }
+    .view.active { display: block; }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Plaatsing Dashboard</h1>
-</div>
-
-<div class="filters">
-  <div class="filter-group">
-    <label>Jaar</label>
-    <select id="filterYear"><option value="">Alle jaren</option></select>
-  </div>
-  <div class="filter-group">
-    <label>Team</label>
-    <select id="filterTeam"><option value="">Alle teams</option></select>
-  </div>
-  <div class="filter-group">
-    <label>Coach</label>
-    <select id="filterCoach"><option value="">Alle coaches</option></select>
-  </div>
-  <div class="filter-group">
-    <label>Type</label>
-    <select id="filterType"><option value="">Alle typen</option></select>
+  <h1>Dashboard</h1>
+  <div class="tabs">
+    <div class="tab active" data-view="plaatsingen">Plaatsingen</div>
+    <div class="tab" data-view="contactmomenten">Contactmomenten</div>
   </div>
 </div>
 
-<div class="content">
-  <div class="summary">
-    <div class="summary-card">
-      <div class="value" id="totalCount">0</div>
-      <div class="label">Totaal plaatsingen</div>
+<!-- PLAATSINGEN VIEW -->
+<div class="view active" id="view-plaatsingen">
+  <div class="filters">
+    <div class="filter-group">
+      <label>Jaar</label>
+      <select id="pl-filterYear"><option value="">Alle jaren</option></select>
     </div>
-    <div class="summary-card">
-      <div class="value" id="avgPerMonth">0</div>
-      <div class="label">Gemiddeld per maand</div>
+    <div class="filter-group">
+      <label>Team</label>
+      <select id="pl-filterTeam"><option value="">Alle teams</option></select>
     </div>
-    <div class="summary-card">
-      <div class="value" id="topMonth">-</div>
-      <div class="label">Beste maand</div>
+    <div class="filter-group">
+      <label>Coach</label>
+      <select id="pl-filterCoach"><option value="">Alle coaches</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Type</label>
+      <select id="pl-filterType"><option value="">Alle typen</option></select>
     </div>
   </div>
-
-  <div class="chart-container">
-    <h2>Plaatsingen per maand</h2>
-    <canvas id="chart" height="100"></canvas>
-    <p class="hint">Klik op een staaf om de details te bekijken</p>
+  <div class="content">
+    <div class="summary">
+      <div class="summary-card"><div class="value" id="pl-totalCount">0</div><div class="label">Totaal plaatsingen</div></div>
+      <div class="summary-card"><div class="value" id="pl-avgPerMonth">0</div><div class="label">Gemiddeld per maand</div></div>
+      <div class="summary-card"><div class="value" id="pl-topMonth">-</div><div class="label">Beste maand</div></div>
+    </div>
+    <div class="chart-container">
+      <h2>Plaatsingen per maand</h2>
+      <canvas id="pl-chart" height="100"></canvas>
+      <p class="hint">Klik op een staaf om de details te bekijken</p>
+    </div>
+    <div class="table-section hidden" id="pl-detailSection">
+      <h2 id="pl-detailTitle">Details</h2>
+      <table>
+        <thead><tr>
+          <th>Datum</th><th>Inwoner</th><th>Administratienr.</th><th>Geboortedatum</th><th>Coach</th><th>Team</th><th>Type</th>
+        </tr></thead>
+        <tbody id="pl-detailBody"></tbody>
+      </table>
+    </div>
   </div>
+</div>
 
-  <div class="table-section hidden" id="detailSection">
-    <h2 id="detailTitle">Details</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Datum</th>
-          <th>Inwoner</th>
-          <th>Administratienr.</th>
-          <th>Geboortedatum</th>
-          <th>Coach</th>
-          <th>Team</th>
-          <th>Type</th>
-        </tr>
-      </thead>
-      <tbody id="detailBody"></tbody>
-    </table>
+<!-- CONTACTMOMENTEN VIEW -->
+<div class="view" id="view-contactmomenten">
+  <div class="filters">
+    <div class="filter-group">
+      <label>Jaar</label>
+      <select id="cm-filterYear"><option value="">Alle jaren</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Team</label>
+      <select id="cm-filterTeam"><option value="">Alle teams</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Coach</label>
+      <select id="cm-filterCoach"><option value="">Alle coaches</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Kanaal</label>
+      <select id="cm-filterKanaal"><option value="">Alle kanalen</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Onderwerp</label>
+      <select id="cm-filterOnderwerp"><option value="">Alle onderwerpen</option></select>
+    </div>
+  </div>
+  <div class="content">
+    <div class="summary">
+      <div class="summary-card"><div class="value" id="cm-totalCount">0</div><div class="label">Totaal contactmomenten</div></div>
+      <div class="summary-card"><div class="value" id="cm-avgPerMonth">0</div><div class="label">Gemiddeld per maand</div></div>
+      <div class="summary-card"><div class="value" id="cm-topMonth">-</div><div class="label">Beste maand</div></div>
+    </div>
+    <div class="chart-container">
+      <h2>Contactmomenten per maand</h2>
+      <canvas id="cm-chart" height="100"></canvas>
+      <p class="hint">Klik op een staaf om de details te bekijken</p>
+    </div>
+    <div class="table-section hidden" id="cm-detailSection">
+      <h2 id="cm-detailTitle">Details</h2>
+      <table>
+        <thead><tr>
+          <th>Datum</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Kanaal</th><th>Onderwerp</th>
+        </tr></thead>
+        <tbody id="cm-detailBody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <script>
-// --- Test data generation ---
-const teams = ['Team Volwassenen', 'Team Inburgering', 'Team Partners', 'Team Maatschappelijk Fit'];
-const types = ['Werk', 'Scholing', 'Ondernemen', 'Beschut werk', 'WSW', 'Banenafspraak regulier', 'Banenafspraak praktijk route'];
+// --- Shared ---
+const teamsList = ['Team Volwassenen', 'Team Inburgering', 'Team Partners', 'Team Maatschappelijk Fit'];
 const coachesByTeam = {
   'Team Volwassenen': ['Peter de Vries', 'Sanne Bakker', 'Jan Mulder', 'Lisa van Dijk'],
   'Team Inburgering': ['Ahmed El Amrani', 'Fatima Yilmaz', 'Mark Jansen', 'Eva de Groot'],
@@ -110,13 +149,17 @@ const coachesByTeam = {
 };
 const firstNames = ['Mohammed','Fatima','Jan','Maria','Pieter','Anna','Ahmed','Sara','Willem','Emma','Ali','Noor','Henk','Julia','Omar','Sophie','Daan','Lisa','Ibrahim','Eva','Bram','Lotte','Youssef','Floor','Kees','Mila','Hassan','Fleur','Dirk','Sanne','Tariq','Nina','Joost','Esmee','Khalid','Iris','Thijs','Rosa','Bilal','Lieke'];
 const lastNames = ['de Vries','van den Berg','Jansen','Bakker','Visser','Smit','Mulder','de Groot','Bos','Vos','Peters','Hendriks','van Dijk','Vermeer','de Jong','Kok','El Amrani','Yilmaz','Osman','van der Linden','Timmermans','Huisman','de Boer','Peeters','Willems','Dijkstra','van Leeuwen','Hermans','Dekker','Schouten'];
+const monthNames = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
 
 function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 function pad(n) { return String(n).padStart(2, '0'); }
 function formatDate(d) { return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`; }
 
-function generateData() {
+// --- Plaatsingen data ---
+const plaatsingTypes = ['Werk', 'Scholing', 'Ondernemen', 'Beschut werk', 'WSW', 'Banenafspraak regulier', 'Banenafspraak praktijk route'];
+
+function generatePlaatsingen() {
   const data = [];
   let adminNr = 1000001;
   for (let year = 2024; year <= 2026; year++) {
@@ -124,18 +167,15 @@ function generateData() {
     for (let month = 1; month <= maxMonth; month++) {
       const count = randInt(8, 25);
       for (let i = 0; i < count; i++) {
-        const team = rand(teams);
-        const coach = rand(coachesByTeam[team]);
-        const day = randInt(1, 28);
-        const birthYear = randInt(1960, 2002);
+        const team = rand(teamsList);
         data.push({
-          coach,
+          coach: rand(coachesByTeam[team]),
           team,
-          date: new Date(year, month - 1, day),
-          type: rand(types),
+          date: new Date(year, month - 1, randInt(1, 28)),
+          type: rand(plaatsingTypes),
           inwoner: {
             name: `${rand(firstNames)} ${rand(lastNames)}`,
-            birthdate: new Date(birthYear, randInt(0, 11), randInt(1, 28)),
+            birthdate: new Date(randInt(1960, 2002), randInt(0, 11), randInt(1, 28)),
             administratienummer: String(adminNr++)
           }
         });
@@ -145,27 +185,55 @@ function generateData() {
   return data;
 }
 
-const plaatsingen = generateData();
+// --- Contactmomenten data ---
+const kanalen = ['Telefonisch (inkomend)', 'Telefonisch (uitgaand)', 'Intern overleg', 'Zaaksysteem', 'Post uitgaand', 'Post inkomend', 'E-mail uitgaand', 'E-mail inkomend', 'Telefonisch', 'Overleg collega', 'Anders', 'Videobellen', 'Fysiek'];
+const onderwerpen = ['Voortgangsgesprek', 'Participatiegesprek', 'Leerbaarheidstoets afgerond', 'Leerbaarheidstoets niet aanwezig met afmelding', 'Leerbaarheidstoets niet aanwezig zonder afmelding', 'Leerbaarheidstoets - Uitnodiging', 'Brede Intake', 'Anders', 'CV', 'Niet bereikbaar', 'No show', 'Startweek plus', 'Startweek', 'Zelftest', 'PTO', 'Loonwaardemeting', 'LKS', 'Praktijkroute', 'Beschut Werk', 'Overige', 'Drie gesprek', 'Uitkering', 'Plaatsing', 'Heropenen dossier', 'Plan vervolggesprek - ingepland', 'Plan intakegesprek - ingepland', 'Voer vervolggesprek - niet aanwezig zonder afmelding', 'Voer vervolggesprek - afmelding', 'Plan vervolggesprek - niet bereikbaar', 'Voer intakegesprek - niet aanwezig zonder afmelding', 'Voer intakegesprek - afmelding', 'Plan intakegesprek - niet bereikbaar', 'Partners in de stad', 'Talentscan', 'Rapportage', 'Aanbod', 'Kinderopvang', 'Verbindende Aanpak', 'Medisch advies', 'Uitval', 'Afmelding', 'Terugmelding'];
 
-// --- Filters ---
-const monthNames = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+function generateContactmomenten() {
+  const data = [];
+  for (let year = 2024; year <= 2026; year++) {
+    const maxMonth = year === 2026 ? 3 : 12;
+    for (let month = 1; month <= maxMonth; month++) {
+      const count = randInt(30, 80);
+      for (let i = 0; i < count; i++) {
+        const team = rand(teamsList);
+        data.push({
+          coach: rand(coachesByTeam[team]),
+          team,
+          date: new Date(year, month - 1, randInt(1, 28)),
+          kanaal: rand(kanalen),
+          onderwerp: rand(onderwerpen),
+          inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
+          administratienummer: String(randInt(1000000, 9999999))
+        });
+      }
+    }
+  }
+  return data;
+}
 
-function updateFilterOptions() {
-  const filters = {
-    year: document.getElementById('filterYear').value,
-    team: document.getElementById('filterTeam').value,
-    coach: document.getElementById('filterCoach').value,
-    type: document.getElementById('filterType').value
-  };
+const plaatsingen = generatePlaatsingen();
+const contactmomenten = generateContactmomenten();
 
-  // For each dropdown, filter data by ALL OTHER active filters to determine available options
-  function getAvailable(excludeKey) {
-    return plaatsingen.filter(p =>
-      (excludeKey === 'year' || !filters.year || p.date.getFullYear() === parseInt(filters.year)) &&
-      (excludeKey === 'team' || !filters.team || p.team === filters.team) &&
-      (excludeKey === 'coach' || !filters.coach || p.coach === filters.coach) &&
-      (excludeKey === 'type' || !filters.type || p.type === filters.type)
-    );
+// --- Generic dashboard engine ---
+function createDashboard(config) {
+  let chart = null;
+  let currentBuckets = [];
+
+  function getFilterValues() {
+    const vals = {};
+    config.filters.forEach(f => { vals[f.key] = document.getElementById(f.selectId).value; });
+    return vals;
+  }
+
+  function getFiltered(filterVals) {
+    return config.data.filter(item => {
+      return config.filters.every(f => {
+        const val = filterVals[f.key];
+        if (!val) return true;
+        return String(f.accessor(item)) === val;
+      });
+    });
   }
 
   function repopulate(selectId, currentValue, options, allLabel) {
@@ -182,135 +250,173 @@ function updateFilterOptions() {
       if (String(val) === String(currentValue)) o.selected = true;
       sel.appendChild(o);
     });
-    // If current value is no longer available, reset
-    if (currentValue && !options.includes(currentValue) && !options.map(String).includes(String(currentValue))) {
+    if (currentValue && !options.map(String).includes(String(currentValue))) {
       sel.value = '';
     }
   }
 
-  const availYears = [...new Set(getAvailable('year').map(p => p.date.getFullYear()))].sort((a, b) => b - a);
-  const availTeams = [...new Set(getAvailable('team').map(p => p.team))].sort();
-  const availCoaches = [...new Set(getAvailable('coach').map(p => p.coach))].sort();
-  const availTypes = [...new Set(getAvailable('type').map(p => p.type))].sort();
-
-  repopulate('filterYear', filters.year, availYears, 'Alle jaren');
-  repopulate('filterTeam', filters.team, availTeams, 'Alle teams');
-  repopulate('filterCoach', filters.coach, availCoaches, 'Alle coaches');
-  repopulate('filterType', filters.type, availTypes, 'Alle typen');
-}
-
-function getFiltered() {
-  const year = document.getElementById('filterYear').value;
-  const team = document.getElementById('filterTeam').value;
-  const coach = document.getElementById('filterCoach').value;
-  const type = document.getElementById('filterType').value;
-  return plaatsingen.filter(p =>
-    (!year || p.date.getFullYear() === parseInt(year)) &&
-    (!team || p.team === team) &&
-    (!coach || p.coach === coach) &&
-    (!type || p.type === type)
-  );
-}
-
-// --- Chart ---
-let chart;
-let currentBuckets = [];
-
-function buildBuckets(filtered) {
-  // Group by year-month
-  const map = {};
-  filtered.forEach(p => {
-    const key = `${p.date.getFullYear()}-${pad(p.date.getMonth()+1)}`;
-    if (!map[key]) map[key] = [];
-    map[key].push(p);
-  });
-  const keys = Object.keys(map).sort();
-  return keys.map(k => {
-    const [y, m] = k.split('-');
-    return { key: k, label: `${monthNames[parseInt(m)-1]} ${y}`, items: map[k] };
-  });
-}
-
-function updateChart() {
-  updateFilterOptions();
-  const filtered = getFiltered();
-  currentBuckets = buildBuckets(filtered);
-
-  const labels = currentBuckets.map(b => b.label);
-  const values = currentBuckets.map(b => b.items.length);
-
-  // Summary
-  const total = filtered.length;
-  document.getElementById('totalCount').textContent = total;
-  const monthsWithData = currentBuckets.length || 1;
-  document.getElementById('avgPerMonth').textContent = Math.round(total / monthsWithData);
-  if (currentBuckets.length > 0) {
-    const best = currentBuckets.reduce((a, b) => b.items.length > a.items.length ? b : a);
-    document.getElementById('topMonth').textContent = `${best.label} (${best.items.length})`;
-  } else {
-    document.getElementById('topMonth').textContent = '-';
+  function updateFilterOptions(filterVals) {
+    config.filters.forEach(f => {
+      const otherFilters = config.filters.filter(o => o.key !== f.key);
+      const available = config.data.filter(item =>
+        otherFilters.every(o => {
+          const val = filterVals[o.key];
+          if (!val) return true;
+          return String(o.accessor(item)) === val;
+        })
+      );
+      const options = [...new Set(available.map(f.accessor))].map(String).sort((a, b) => {
+        if (f.sortDesc) return b - a;
+        return a.localeCompare(b);
+      });
+      repopulate(f.selectId, filterVals[f.key], options, f.allLabel);
+    });
   }
 
-  if (chart) chart.destroy();
+  function buildBuckets(filtered) {
+    const map = {};
+    filtered.forEach(item => {
+      const d = item.date;
+      const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+      if (!map[key]) map[key] = [];
+      map[key].push(item);
+    });
+    return Object.keys(map).sort().map(k => {
+      const [y, m] = k.split('-');
+      return { key: k, label: `${monthNames[parseInt(m)-1]} ${y}`, items: map[k] };
+    });
+  }
 
-  chart = new Chart(document.getElementById('chart'), {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Plaatsingen',
-        data: values,
-        backgroundColor: '#2b6cb0',
-        hoverBackgroundColor: '#1a4a7a',
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+  function update() {
+    const filterVals = getFilterValues();
+    updateFilterOptions(filterVals);
+    const filtered = getFiltered(getFilterValues());
+    currentBuckets = buildBuckets(filtered);
+
+    const total = filtered.length;
+    document.getElementById(config.prefix + '-totalCount').textContent = total;
+    const months = currentBuckets.length || 1;
+    document.getElementById(config.prefix + '-avgPerMonth').textContent = Math.round(total / months);
+    if (currentBuckets.length > 0) {
+      const best = currentBuckets.reduce((a, b) => b.items.length > a.items.length ? b : a);
+      document.getElementById(config.prefix + '-topMonth').textContent = `${best.label} (${best.items.length})`;
+    } else {
+      document.getElementById(config.prefix + '-topMonth').textContent = '-';
+    }
+
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById(config.prefix + '-chart'), {
+      type: 'bar',
+      data: {
+        labels: currentBuckets.map(b => b.label),
+        datasets: [{
+          label: config.chartLabel,
+          data: currentBuckets.map(b => b.items.length),
+          backgroundColor: config.color,
+          hoverBackgroundColor: config.hoverColor,
+          borderRadius: 4
+        }]
       },
-      onClick(evt, elements) {
-        if (elements.length > 0) {
-          showDetail(elements[0].index);
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        onClick(evt, elements) {
+          if (elements.length > 0) showDetail(elements[0].index);
         }
       }
-    }
+    });
+
+    document.getElementById(config.prefix + '-detailSection').classList.add('hidden');
+  }
+
+  function showDetail(index) {
+    const bucket = currentBuckets[index];
+    if (!bucket) return;
+    document.getElementById(config.prefix + '-detailTitle').textContent = `${config.chartLabel} in ${bucket.label} (${bucket.items.length})`;
+    const tbody = document.getElementById(config.prefix + '-detailBody');
+    tbody.innerHTML = '';
+    [...bucket.items].sort((a, b) => a.date - b.date).forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = config.rowRenderer(item);
+      tbody.appendChild(tr);
+    });
+    const section = document.getElementById(config.prefix + '-detailSection');
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Bind filter changes
+  config.filters.forEach(f => {
+    document.getElementById(f.selectId).addEventListener('change', update);
   });
 
-  document.getElementById('detailSection').classList.add('hidden');
+  return { update };
 }
 
-function showDetail(index) {
-  const bucket = currentBuckets[index];
-  if (!bucket) return;
-  document.getElementById('detailTitle').textContent = `Plaatsingen in ${bucket.label} (${bucket.items.length})`;
-  const tbody = document.getElementById('detailBody');
-  tbody.innerHTML = '';
-  const sorted = [...bucket.items].sort((a, b) => a.date - b.date);
-  sorted.forEach(p => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${formatDate(p.date)}</td>
-      <td>${p.inwoner.name}</td>
-      <td>${p.inwoner.administratienummer}</td>
-      <td>${formatDate(p.inwoner.birthdate)}</td>
-      <td>${p.coach}</td>
-      <td>${p.team}</td>
-      <td>${p.type}</td>
-    `;
-    tbody.appendChild(tr);
+// --- Plaatsingen dashboard ---
+const plDashboard = createDashboard({
+  prefix: 'pl',
+  data: plaatsingen,
+  chartLabel: 'Plaatsingen',
+  color: '#2b6cb0',
+  hoverColor: '#1a4a7a',
+  filters: [
+    { key: 'year', selectId: 'pl-filterYear', allLabel: 'Alle jaren', accessor: p => p.date.getFullYear(), sortDesc: true },
+    { key: 'team', selectId: 'pl-filterTeam', allLabel: 'Alle teams', accessor: p => p.team },
+    { key: 'coach', selectId: 'pl-filterCoach', allLabel: 'Alle coaches', accessor: p => p.coach },
+    { key: 'type', selectId: 'pl-filterType', allLabel: 'Alle typen', accessor: p => p.type }
+  ],
+  rowRenderer: p => `
+    <td>${formatDate(p.date)}</td>
+    <td>${p.inwoner.name}</td>
+    <td>${p.inwoner.administratienummer}</td>
+    <td>${formatDate(p.inwoner.birthdate)}</td>
+    <td>${p.coach}</td>
+    <td>${p.team}</td>
+    <td>${p.type}</td>`
+});
+
+// --- Contactmomenten dashboard ---
+const cmDashboard = createDashboard({
+  prefix: 'cm',
+  data: contactmomenten,
+  chartLabel: 'Contactmomenten',
+  color: '#2f855a',
+  hoverColor: '#1e6b45',
+  filters: [
+    { key: 'year', selectId: 'cm-filterYear', allLabel: 'Alle jaren', accessor: c => c.date.getFullYear(), sortDesc: true },
+    { key: 'team', selectId: 'cm-filterTeam', allLabel: 'Alle teams', accessor: c => c.team },
+    { key: 'coach', selectId: 'cm-filterCoach', allLabel: 'Alle coaches', accessor: c => c.coach },
+    { key: 'kanaal', selectId: 'cm-filterKanaal', allLabel: 'Alle kanalen', accessor: c => c.kanaal },
+    { key: 'onderwerp', selectId: 'cm-filterOnderwerp', allLabel: 'Alle onderwerpen', accessor: c => c.onderwerp }
+  ],
+  rowRenderer: c => `
+    <td>${formatDate(c.date)}</td>
+    <td>${c.inwoner}</td>
+    <td>${c.administratienummer}</td>
+    <td>${c.coach}</td>
+    <td>${c.team}</td>
+    <td>${c.kanaal}</td>
+    <td>${c.onderwerp}</td>`
+});
+
+// --- Tabs ---
+let activeView = 'plaatsingen';
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    activeView = tab.dataset.view;
+    document.getElementById('view-' + activeView).classList.add('active');
+    if (activeView === 'plaatsingen') plDashboard.update();
+    else cmDashboard.update();
   });
-  const section = document.getElementById('detailSection');
-  section.classList.remove('hidden');
-  section.scrollIntoView({ behavior: 'smooth' });
-}
+});
 
 // --- Init ---
-updateChart();
-
-document.querySelectorAll('.filters select').forEach(sel => sel.addEventListener('change', updateChart));
+plDashboard.update();
 </script>
 
 </body>
