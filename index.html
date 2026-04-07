@@ -90,6 +90,7 @@
   <div class="tab-bar">
     <button class="tab-btn active" data-view="plaatsingen">Plaatsingen</button>
     <button class="tab-btn" data-view="contactmomenten">Contactmomenten</button>
+    <button class="tab-btn" data-view="aanbod">Aanbod</button>
   </div>
 </div>
 
@@ -183,6 +184,53 @@
   </div>
 </div>
 
+<!-- AANBOD VIEW -->
+<div class="view" id="view-aanbod">
+  <div class="filters">
+    <div class="filter-group">
+      <label for="ab-filterYear">Jaar</label>
+      <select id="ab-filterYear"><option value="">Alle jaren</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ab-filterTeam">Team</label>
+      <select id="ab-filterTeam"><option value="">Alle teams</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ab-filterCoach">Coach</label>
+      <select id="ab-filterCoach"><option value="">Alle coaches</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ab-filterAanbod">Aanbodnaam</label>
+      <select id="ab-filterAanbod"><option value="">Alle aanbod</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ab-filterAfsluitreden">Afsluitreden</label>
+      <select id="ab-filterAfsluitreden"><option value="">Alle afsluitredenen</option></select>
+    </div>
+  </div>
+  <div class="content">
+    <div class="summary">
+      <div class="tile"><div class="tile-value" id="ab-totalCount">0</div><div class="tile-label">Totaal gestart aanbod</div></div>
+      <div class="tile"><div class="tile-value" id="ab-avgPerMonth">0</div><div class="tile-label">Gemiddeld per maand</div></div>
+      <div class="tile"><div class="tile-value" id="ab-topMonth">-</div><div class="tile-label">Beste maand</div></div>
+    </div>
+    <div class="chart-tile">
+      <h2>Gestart aanbod per maand (uitgesplitst op aanbodnaam)</h2>
+      <canvas id="ab-chart" height="120"></canvas>
+      <p class="hint">Klik op een staaf om de details te bekijken</p>
+    </div>
+    <div class="table-section hidden" id="ab-detailSection">
+      <h2 id="ab-detailTitle">Details</h2>
+      <table>
+        <thead><tr>
+          <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Afsluitreden</th>
+        </tr></thead>
+        <tbody id="ab-detailBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <script>
 // --- Shared ---
 const teamsList = ['Team Volwassenen', 'Team Inburgering', 'Team Partners', 'Team Maatschappelijk Fit'];
@@ -257,8 +305,38 @@ function generateContactmomenten() {
   return data;
 }
 
+// --- Aanbod data ---
+const aanbodnamen = ['Taalcoaching', 'Werkfit traject', 'Participatieplaats', 'Orientatie op werk', 'Digitale vaardigheden', 'Duale inburgering', 'Entree opleiding', 'Kort beroepsonderwijs', 'Sociale activering', 'Vrijwilligerswerk', 'Jobcoaching', 'Sollicitatietraining', 'Budgetcoaching', 'MAP-training', 'Ondernemerschapstraject'];
+const afsluitredenen = ['Succesvol afgerond', 'Voortijdig gestopt', 'Administratief afgesloten', 'Niet verschenen', 'Aanbod afgesloten wegens wijzigen leerroute', 'Doorstroom naar ander aanbod', 'Medische redenen'];
+const excludedAfsluitredenen = ['Administratief afgesloten', 'Aanbod afgesloten wegens wijzigen leerroute'];
+
+function generateAanbod() {
+  const data = [];
+  for (let year = 2024; year <= 2026; year++) {
+    const maxMonth = year === 2026 ? 3 : 12;
+    for (let month = 1; month <= maxMonth; month++) {
+      const count = randInt(15, 40);
+      for (let i = 0; i < count; i++) {
+        const team = rand(teamsList);
+        const afsluitreden = Math.random() < 0.3 ? rand(afsluitredenen) : null;
+        data.push({
+          coach: rand(coachesByTeam[team]),
+          team,
+          date: new Date(year, month - 1, randInt(1, 28)),
+          aanbodnaam: rand(aanbodnamen),
+          inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
+          administratienummer: String(randInt(1000000, 9999999)),
+          afsluitreden
+        });
+      }
+    }
+  }
+  return data.filter(a => !a.afsluitreden || !excludedAfsluitredenen.includes(a.afsluitreden));
+}
+
 const plaatsingen = generatePlaatsingen();
 const contactmomenten = generateContactmomenten();
+const aanbodData = generateAanbod();
 
 // --- Generic dashboard engine ---
 function createDashboard(config) {
@@ -464,7 +542,189 @@ const cmDashboard = createDashboard({
     <td>${c.onderwerp}</td>`
 });
 
+// --- Aanbod dashboard (stacked bar chart) ---
+const abStackColors = ['#0f62fe','#198038','#8a3ffc','#ff832b','#002d9c','#6fdc8c','#d4bbff','#ffb784','#0072c3','#24a148','#ba4e00','#491d8b','#009d9a','#fa4d56','#005d5d'];
+
+const abDashboard = (function() {
+  let chart = null;
+  let currentBuckets = [];
+  const filterDefs = [
+    { key: 'year', selectId: 'ab-filterYear', allLabel: 'Alle jaren', accessor: a => a.date.getFullYear(), sortDesc: true },
+    { key: 'team', selectId: 'ab-filterTeam', allLabel: 'Alle teams', accessor: a => a.team },
+    { key: 'coach', selectId: 'ab-filterCoach', allLabel: 'Alle coaches', accessor: a => a.coach },
+    { key: 'aanbod', selectId: 'ab-filterAanbod', allLabel: 'Alle aanbod', accessor: a => a.aanbodnaam },
+    { key: 'afsluitreden', selectId: 'ab-filterAfsluitreden', allLabel: 'Alle afsluitredenen', accessor: a => a.afsluitreden || 'Nog actief' }
+  ];
+
+  function getFilterValues() {
+    const vals = {};
+    filterDefs.forEach(f => { vals[f.key] = document.getElementById(f.selectId).value; });
+    return vals;
+  }
+
+  function applyFilters(data, filterVals) {
+    return data.filter(item => filterDefs.every(f => {
+      const val = filterVals[f.key];
+      if (!val) return true;
+      return String(f.accessor(item)) === val;
+    }));
+  }
+
+  function repopulate(selectId, currentValue, options, allLabel) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '';
+    const allOpt = document.createElement('option');
+    allOpt.value = '';
+    allOpt.textContent = allLabel;
+    sel.appendChild(allOpt);
+    options.forEach(val => {
+      const o = document.createElement('option');
+      o.value = val;
+      o.textContent = val;
+      if (String(val) === String(currentValue)) o.selected = true;
+      sel.appendChild(o);
+    });
+    if (currentValue && !options.map(String).includes(String(currentValue))) sel.value = '';
+  }
+
+  function updateFilterOptions(filterVals) {
+    filterDefs.forEach(f => {
+      const otherFilters = filterDefs.filter(o => o.key !== f.key);
+      const available = aanbodData.filter(item =>
+        otherFilters.every(o => {
+          const val = filterVals[o.key];
+          if (!val) return true;
+          return String(o.accessor(item)) === val;
+        })
+      );
+      const options = [...new Set(available.map(f.accessor))].map(String).sort((a, b) => {
+        if (f.sortDesc) return b - a;
+        return a.localeCompare(b);
+      });
+      repopulate(f.selectId, filterVals[f.key], options, f.allLabel);
+    });
+  }
+
+  function update() {
+    const filterVals = getFilterValues();
+    updateFilterOptions(filterVals);
+    const filtered = applyFilters(aanbodData, getFilterValues());
+
+    // Build month buckets
+    const monthMap = {};
+    filtered.forEach(item => {
+      const d = item.date;
+      const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+      if (!monthMap[key]) monthMap[key] = [];
+      monthMap[key].push(item);
+    });
+    const monthKeys = Object.keys(monthMap).sort();
+    currentBuckets = monthKeys.map(k => {
+      const [y, m] = k.split('-');
+      return { key: k, label: `${monthNames[parseInt(m)-1]} ${y}`, items: monthMap[k] };
+    });
+
+    // Summary
+    const total = filtered.length;
+    document.getElementById('ab-totalCount').textContent = total;
+    const months = currentBuckets.length || 1;
+    document.getElementById('ab-avgPerMonth').textContent = Math.round(total / months);
+    if (currentBuckets.length > 0) {
+      const best = currentBuckets.reduce((a, b) => b.items.length > a.items.length ? b : a);
+      document.getElementById('ab-topMonth').textContent = `${best.label} (${best.items.length})`;
+    } else {
+      document.getElementById('ab-topMonth').textContent = '-';
+    }
+
+    // Get unique aanbodnamen in filtered data
+    const activeAanbod = [...new Set(filtered.map(a => a.aanbodnaam))].sort();
+
+    // Build stacked datasets
+    const datasets = activeAanbod.map((naam, i) => ({
+      label: naam,
+      data: currentBuckets.map(b => b.items.filter(a => a.aanbodnaam === naam).length),
+      backgroundColor: abStackColors[i % abStackColors.length],
+      borderRadius: 2
+    }));
+
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById('ab-chart'), {
+      type: 'bar',
+      data: {
+        labels: currentBuckets.map(b => b.label),
+        datasets
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { font: { family: 'IBM Plex Sans', size: 11 }, boxWidth: 12, padding: 16 }
+          },
+          tooltip: {
+            backgroundColor: '#161616',
+            titleFont: { family: 'IBM Plex Sans', size: 12 },
+            bodyFont: { family: 'IBM Plex Sans', size: 12 },
+            cornerRadius: 0,
+            padding: 12
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' }, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1, font: { family: 'IBM Plex Sans', size: 12 }, color: '#525252' }, grid: { color: '#e0e0e0' } }
+        },
+        onClick(evt, elements) {
+          if (elements.length > 0) {
+            const el = elements[0];
+            showDetail(el.index, el.datasetIndex);
+          }
+        }
+      }
+    });
+
+    document.getElementById('ab-detailSection').classList.add('hidden');
+  }
+
+  function showDetail(monthIndex, datasetIndex) {
+    const bucket = currentBuckets[monthIndex];
+    if (!bucket) return;
+    const aanbodnaam = chart.data.datasets[datasetIndex]?.label;
+    let items = bucket.items;
+    let title = `Aanbod in ${bucket.label} (${items.length})`;
+    if (aanbodnaam) {
+      items = items.filter(a => a.aanbodnaam === aanbodnaam);
+      title = `${aanbodnaam} in ${bucket.label} (${items.length})`;
+    }
+    document.getElementById('ab-detailTitle').textContent = title;
+    const tbody = document.getElementById('ab-detailBody');
+    tbody.innerHTML = '';
+    [...items].sort((a, b) => a.date - b.date).forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(item.date)}</td>
+        <td>${item.aanbodnaam}</td>
+        <td>${item.inwoner}</td>
+        <td>${item.administratienummer}</td>
+        <td>${item.coach}</td>
+        <td>${item.team}</td>
+        <td>${item.afsluitreden || 'Nog actief'}</td>`;
+      tbody.appendChild(tr);
+    });
+    const section = document.getElementById('ab-detailSection');
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  filterDefs.forEach(f => {
+    document.getElementById(f.selectId).addEventListener('change', update);
+  });
+
+  return { update };
+})();
+
 // --- Tabs ---
+const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard };
 let activeView = 'plaatsingen';
 document.querySelectorAll('.tab-btn').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -473,8 +733,7 @@ document.querySelectorAll('.tab-btn').forEach(tab => {
     tab.classList.add('active');
     activeView = tab.dataset.view;
     document.getElementById('view-' + activeView).classList.add('active');
-    if (activeView === 'plaatsingen') plDashboard.update();
-    else cmDashboard.update();
+    dashboards[activeView].update();
   });
 });
 
