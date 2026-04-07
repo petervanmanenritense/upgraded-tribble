@@ -1,4 +1,4 @@
-# Plaatsing Dashboard PoC
+# Generic Dashboard PoC
 
 A proof-of-concept dashboard for visualizing plaatsingen, contactmomenten, and aanbod data with filters, charts, and detail tables. Built with Carbon Design System.
 
