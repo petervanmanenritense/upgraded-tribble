@@ -5,34 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@carbon/styles@1/css/styles.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #333; }
-    .header { background: #1a3a5c; color: white; padding: 20px 32px 0; }
-    .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
-    .tabs { display: flex; gap: 0; }
-    .tab { padding: 10px 24px; cursor: pointer; font-size: 14px; font-weight: 600; border-radius: 8px 8px 0 0; color: rgba(255,255,255,0.6); transition: background 0.15s; }
-    .tab:hover { color: rgba(255,255,255,0.85); }
-    .tab.active { background: #f5f7fa; color: #1a3a5c; }
-    .filters { display: flex; gap: 16px; padding: 20px 32px; background: white; border-bottom: 1px solid #e0e4e8; flex-wrap: wrap; align-items: flex-end; }
-    .filter-group { display: flex; flex-direction: column; gap: 4px; }
-    .filter-group label { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-    .filter-group select { padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; min-width: 180px; background: white; }
-    .content { padding: 24px 32px; max-width: 1200px; margin: 0 auto; }
-    .chart-container { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px; }
-    .chart-container h2 { font-size: 16px; color: #555; margin-bottom: 16px; }
-    .summary { display: flex; gap: 16px; margin-bottom: 24px; }
-    .summary-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); flex: 1; }
-    .summary-card .value { font-size: 32px; font-weight: 700; color: #1a3a5c; }
-    .summary-card .label { font-size: 13px; color: #888; margin-top: 4px; }
-    .table-section { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-top: 24px; }
-    .table-section h2 { font-size: 16px; color: #555; margin-bottom: 16px; }
-    .table-section table { width: 100%; border-collapse: collapse; }
-    .table-section th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #e0e4e8; font-size: 12px; text-transform: uppercase; color: #888; letter-spacing: 0.5px; }
-    .table-section td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-    .table-section tr:hover td { background: #f8fafc; }
-    .hint { font-size: 13px; color: #999; margin-top: 8px; }
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #f4f4f4; color: #161616; margin: 0; }
+
+    /* Header */
+    .cds--header-custom { background: #161616; color: #f4f4f4; padding: 1rem 2rem 0; }
+    .cds--header-custom h1 { font-size: 1.25rem; font-weight: 400; margin: 0 0 1rem; letter-spacing: 0.16px; }
+
+    /* Tabs */
+    .tab-bar { display: flex; gap: 0; border-bottom: 2px solid #393939; }
+    .tab-btn { padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; color: #c6c6c6; background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; letter-spacing: 0.16px; transition: color 0.15s, border-color 0.15s; }
+    .tab-btn:hover { color: #f4f4f4; }
+    .tab-btn.active { color: #f4f4f4; border-bottom-color: #0f62fe; }
+
+    /* Filters */
+    .filters { display: flex; gap: 1rem; padding: 1.25rem 2rem; background: #ffffff; border-bottom: 1px solid #e0e0e0; flex-wrap: wrap; align-items: flex-end; }
+    .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .filter-group label { font-size: 0.75rem; font-weight: 400; color: #525252; letter-spacing: 0.32px; }
+    .filter-group select {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.875rem;
+      padding: 0 2.5rem 0 1rem;
+      height: 2.5rem;
+      min-width: 11rem;
+      border: none;
+      border-bottom: 1px solid #8d8d8d;
+      background: #f4f4f4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z' fill='%23161616'/%3E%3C/svg%3E") no-repeat right 1rem center;
+      -webkit-appearance: none;
+      appearance: none;
+      color: #161616;
+      cursor: pointer;
+      outline: none;
+    }
+    .filter-group select:focus { border-bottom-color: #0f62fe; outline: 2px solid #0f62fe; outline-offset: -2px; }
+
+    /* Content */
+    .content { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+
+    /* Summary tiles */
+    .summary { display: flex; gap: 1px; margin-bottom: 1.5rem; }
+    .tile { background: #ffffff; padding: 1rem 1.25rem; flex: 1; border-top: 3px solid transparent; }
+    .tile:first-child { border-top-color: #0f62fe; }
+    .tile .tile-value { font-size: 2rem; font-weight: 300; color: #161616; line-height: 1.2; }
+    .tile .tile-label { font-size: 0.75rem; color: #525252; margin-top: 0.25rem; letter-spacing: 0.32px; }
+
+    /* Chart tile */
+    .chart-tile { background: #ffffff; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .chart-tile h2 { font-size: 0.875rem; font-weight: 600; color: #161616; margin-bottom: 1rem; letter-spacing: 0.16px; }
+    .chart-tile .hint { font-size: 0.75rem; color: #6f6f6f; margin-top: 0.75rem; }
     canvas { cursor: pointer; }
+
+    /* Data table */
+    .table-section { background: #ffffff; padding: 1.5rem; margin-top: 1.5rem; }
+    .table-section h2 { font-size: 0.875rem; font-weight: 600; color: #161616; margin-bottom: 1rem; letter-spacing: 0.16px; }
+    .table-section table { width: 100%; border-collapse: collapse; }
+    .table-section thead th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #161616;
+      background: #e0e0e0;
+      letter-spacing: 0.16px;
+      border-bottom: 1px solid #c6c6c6;
+    }
+    .table-section tbody td {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #161616;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .table-section tbody tr:hover td { background: #e8e8e8; }
+
     .hidden { display: none; }
     .view { display: none; }
     .view.active { display: block; }
@@ -40,11 +85,11 @@
 </head>
 <body>
 
-<div class="header">
+<div class="cds--header-custom">
   <h1>Dashboard</h1>
-  <div class="tabs">
-    <div class="tab active" data-view="plaatsingen">Plaatsingen</div>
-    <div class="tab" data-view="contactmomenten">Contactmomenten</div>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-view="plaatsingen">Plaatsingen</button>
+    <button class="tab-btn" data-view="contactmomenten">Contactmomenten</button>
   </div>
 </div>
 
@@ -52,29 +97,29 @@
 <div class="view active" id="view-plaatsingen">
   <div class="filters">
     <div class="filter-group">
-      <label>Jaar</label>
+      <label for="pl-filterYear">Jaar</label>
       <select id="pl-filterYear"><option value="">Alle jaren</option></select>
     </div>
     <div class="filter-group">
-      <label>Team</label>
+      <label for="pl-filterTeam">Team</label>
       <select id="pl-filterTeam"><option value="">Alle teams</option></select>
     </div>
     <div class="filter-group">
-      <label>Coach</label>
+      <label for="pl-filterCoach">Coach</label>
       <select id="pl-filterCoach"><option value="">Alle coaches</option></select>
     </div>
     <div class="filter-group">
-      <label>Type</label>
+      <label for="pl-filterType">Type</label>
       <select id="pl-filterType"><option value="">Alle typen</option></select>
     </div>
   </div>
   <div class="content">
     <div class="summary">
-      <div class="summary-card"><div class="value" id="pl-totalCount">0</div><div class="label">Totaal plaatsingen</div></div>
-      <div class="summary-card"><div class="value" id="pl-avgPerMonth">0</div><div class="label">Gemiddeld per maand</div></div>
-      <div class="summary-card"><div class="value" id="pl-topMonth">-</div><div class="label">Beste maand</div></div>
+      <div class="tile"><div class="tile-value" id="pl-totalCount">0</div><div class="tile-label">Totaal plaatsingen</div></div>
+      <div class="tile"><div class="tile-value" id="pl-avgPerMonth">0</div><div class="tile-label">Gemiddeld per maand</div></div>
+      <div class="tile"><div class="tile-value" id="pl-topMonth">-</div><div class="tile-label">Beste maand</div></div>
     </div>
-    <div class="chart-container">
+    <div class="chart-tile">
       <h2>Plaatsingen per maand</h2>
       <canvas id="pl-chart" height="100"></canvas>
       <p class="hint">Klik op een staaf om de details te bekijken</p>
@@ -95,33 +140,33 @@
 <div class="view" id="view-contactmomenten">
   <div class="filters">
     <div class="filter-group">
-      <label>Jaar</label>
+      <label for="cm-filterYear">Jaar</label>
       <select id="cm-filterYear"><option value="">Alle jaren</option></select>
     </div>
     <div class="filter-group">
-      <label>Team</label>
+      <label for="cm-filterTeam">Team</label>
       <select id="cm-filterTeam"><option value="">Alle teams</option></select>
     </div>
     <div class="filter-group">
-      <label>Coach</label>
+      <label for="cm-filterCoach">Coach</label>
       <select id="cm-filterCoach"><option value="">Alle coaches</option></select>
     </div>
     <div class="filter-group">
-      <label>Kanaal</label>
+      <label for="cm-filterKanaal">Kanaal</label>
       <select id="cm-filterKanaal"><option value="">Alle kanalen</option></select>
     </div>
     <div class="filter-group">
-      <label>Onderwerp</label>
+      <label for="cm-filterOnderwerp">Onderwerp</label>
       <select id="cm-filterOnderwerp"><option value="">Alle onderwerpen</option></select>
     </div>
   </div>
   <div class="content">
     <div class="summary">
-      <div class="summary-card"><div class="value" id="cm-totalCount">0</div><div class="label">Totaal contactmomenten</div></div>
-      <div class="summary-card"><div class="value" id="cm-avgPerMonth">0</div><div class="label">Gemiddeld per maand</div></div>
-      <div class="summary-card"><div class="value" id="cm-topMonth">-</div><div class="label">Beste maand</div></div>
+      <div class="tile"><div class="tile-value" id="cm-totalCount">0</div><div class="tile-label">Totaal contactmomenten</div></div>
+      <div class="tile"><div class="tile-value" id="cm-avgPerMonth">0</div><div class="tile-label">Gemiddeld per maand</div></div>
+      <div class="tile"><div class="tile-value" id="cm-topMonth">-</div><div class="tile-label">Beste maand</div></div>
     </div>
-    <div class="chart-container">
+    <div class="chart-tile">
       <h2>Contactmomenten per maand</h2>
       <canvas id="cm-chart" height="100"></canvas>
       <p class="hint">Klik op een staaf om de details te bekijken</p>
@@ -314,13 +359,32 @@ function createDashboard(config) {
           data: currentBuckets.map(b => b.items.length),
           backgroundColor: config.color,
           hoverBackgroundColor: config.hoverColor,
-          borderRadius: 4
+          borderRadius: 2
         }]
       },
       options: {
         responsive: true,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#161616',
+            titleFont: { family: 'IBM Plex Sans', size: 12 },
+            bodyFont: { family: 'IBM Plex Sans', size: 12 },
+            cornerRadius: 0,
+            padding: 12
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, font: { family: 'IBM Plex Sans', size: 12 }, color: '#525252' },
+            grid: { color: '#e0e0e0' }
+          },
+          x: {
+            ticks: { font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' },
+            grid: { display: false }
+          }
+        },
         onClick(evt, elements) {
           if (elements.length > 0) showDetail(elements[0].index);
         }
@@ -346,7 +410,6 @@ function createDashboard(config) {
     section.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // Bind filter changes
   config.filters.forEach(f => {
     document.getElementById(f.selectId).addEventListener('change', update);
   });
@@ -359,8 +422,8 @@ const plDashboard = createDashboard({
   prefix: 'pl',
   data: plaatsingen,
   chartLabel: 'Plaatsingen',
-  color: '#2b6cb0',
-  hoverColor: '#1a4a7a',
+  color: '#0f62fe',
+  hoverColor: '#0043ce',
   filters: [
     { key: 'year', selectId: 'pl-filterYear', allLabel: 'Alle jaren', accessor: p => p.date.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'pl-filterTeam', allLabel: 'Alle teams', accessor: p => p.team },
@@ -382,8 +445,8 @@ const cmDashboard = createDashboard({
   prefix: 'cm',
   data: contactmomenten,
   chartLabel: 'Contactmomenten',
-  color: '#2f855a',
-  hoverColor: '#1e6b45',
+  color: '#198038',
+  hoverColor: '#0e6027',
   filters: [
     { key: 'year', selectId: 'cm-filterYear', allLabel: 'Alle jaren', accessor: c => c.date.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'cm-filterTeam', allLabel: 'Alle teams', accessor: c => c.team },
@@ -403,9 +466,9 @@ const cmDashboard = createDashboard({
 
 // --- Tabs ---
 let activeView = 'plaatsingen';
-document.querySelectorAll('.tab').forEach(tab => {
+document.querySelectorAll('.tab-btn').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     tab.classList.add('active');
     activeView = tab.dataset.view;
