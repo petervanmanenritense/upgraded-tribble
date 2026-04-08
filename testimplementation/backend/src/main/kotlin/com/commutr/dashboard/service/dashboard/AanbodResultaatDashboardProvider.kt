@@ -43,7 +43,7 @@ class AanbodResultaatDashboardProvider(
         ),
         detailTable = DetailTableConfig(
             columns = listOf(
-                ColumnConfig("startDate", "Startdatum"),
+                ColumnConfig("eindDatum", "Einddatum"),
                 ColumnConfig("aanbodnaam", "Aanbodnaam"),
                 ColumnConfig("inwoner", "Inwoner"),
                 ColumnConfig("administratienummer", "Administratienummer"),
@@ -60,6 +60,9 @@ class AanbodResultaatDashboardProvider(
             // Must have an afsluitreden (only records with a result)
             predicates.add(cb.isNotNull(root.get<String>("afsluitreden")))
 
+            // Must have an eindDatum
+            predicates.add(cb.isNotNull(root.get<LocalDate>("eindDatum")))
+
             // Exclude admin-closed records
             predicates.add(
                 cb.not(root.get<String>("afsluitreden").`in`(EXCLUDED_AFSLUITREDENEN))
@@ -70,7 +73,7 @@ class AanbodResultaatDashboardProvider(
                     val yearInt = year.toInt()
                     predicates.add(
                         cb.between(
-                            root.get("startDate"),
+                            root.get("eindDatum"),
                             LocalDate.of(yearInt, 1, 1),
                             LocalDate.of(yearInt, 12, 31)
                         )
@@ -101,7 +104,7 @@ class AanbodResultaatDashboardProvider(
         val result = mutableMapOf<String, List<String>>()
 
         val forYear = aanbodRepository.findAll(buildSpec(filters, excludeKey = "year"))
-        result["year"] = forYear.map { it.startDate.year.toString() }.distinct().sorted()
+        result["year"] = forYear.map { it.eindDatum!!.year.toString() }.distinct().sorted()
 
         val forTeam = aanbodRepository.findAll(buildSpec(filters, excludeKey = "team"))
         result["team"] = forTeam.mapNotNull { it.team?.name }.distinct().sorted()
@@ -117,21 +120,21 @@ class AanbodResultaatDashboardProvider(
 
     override fun getSummary(filters: Map<String, String?>): SummaryDataDto {
         val records = aanbodRepository.findAll(buildSpec(filters))
-        return PlaatsingDashboardProvider.buildSummary(records.map { it.startDate })
+        return PlaatsingDashboardProvider.buildSummary(records.map { it.eindDatum!! })
     }
 
     override fun getChartData(filters: Map<String, String?>): ChartDataDto {
         val records = aanbodRepository.findAll(buildSpec(filters))
         val yearFilter = filters["year"]?.takeIf { it.isNotBlank() }
-        val months = PlaatsingDashboardProvider.buildMonthLabels(records.map { it.startDate }, yearFilter)
+        val months = PlaatsingDashboardProvider.buildMonthLabels(records.map { it.eindDatum!! }, yearFilter)
         val labels = months.map { PlaatsingDashboardProvider.formatMonth(it) }
 
-        val aanbodnamen = records.map { it.aanbodnaam }.distinct().sorted()
-        val series = aanbodnamen.map { naam ->
+        val afsluitredenen = records.mapNotNull { it.afsluitreden }.distinct().sorted()
+        val series = afsluitredenen.map { reden ->
             val data = months.map { ym ->
-                records.count { it.aanbodnaam == naam && YearMonth.from(it.startDate) == ym }
+                records.count { it.afsluitreden == reden && YearMonth.from(it.eindDatum!!) == ym }
             }
-            ChartSeriesDto(label = naam, data = data)
+            ChartSeriesDto(label = reden, data = data)
         }
 
         return ChartDataDto(labels = labels, series = series)
@@ -140,15 +143,15 @@ class AanbodResultaatDashboardProvider(
     override fun getDetails(month: String, category: String?, filters: Map<String, String?>): DetailDataDto {
         val ym = YearMonth.parse(month)
         var records = aanbodRepository.findAll(buildSpec(filters))
-            .filter { YearMonth.from(it.startDate) == ym }
+            .filter { YearMonth.from(it.eindDatum!!) == ym }
 
         if (!category.isNullOrBlank()) {
-            records = records.filter { it.aanbodnaam == category }
+            records = records.filter { it.afsluitreden == category }
         }
 
         val rows = records.map { a ->
             mapOf<String, Any?>(
-                "startDate" to a.startDate.toString(),
+                "eindDatum" to a.eindDatum.toString(),
                 "aanbodnaam" to a.aanbodnaam,
                 "inwoner" to (a.inwoner?.fullName),
                 "administratienummer" to (a.inwoner?.administratienummer),

@@ -317,6 +317,7 @@ const entities = {
       { key: 'startDate', label: 'Startdatum' },
       { key: 'aanbodnaam', label: 'Aanbodnaam' },
       { key: 'afsluitreden', label: 'Afsluitreden' },
+      { key: 'eindDatum', label: 'Einddatum' },
     ],
     fields: [
       { key: 'inwonerById', label: 'Inwoner', type: 'ref', ref: 'inwoners', refLabel: 'fullName', required: true },
@@ -335,6 +336,7 @@ const entities = {
         'Niet verschenen', 'Aanbod afgesloten wegens wijzigen leerroute',
         'Doorstroom naar ander aanbod', 'Medische redenen',
       ]},
+      { key: 'eindDatum', label: 'Einddatum', type: 'date', required: false },
     ],
   },
 };

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open:*)",
+      "Bash(git pull:*)",
+      "Bash(gradle wrapper:*)",
+      "Bash(./gradlew compileKotlin)",
+      "Bash(lsof -ti:8080)",
+      "Bash(xargs kill:*)"
+    ]
+  }
+}

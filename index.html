@@ -224,7 +224,7 @@
       <h2 id="ab-detailTitle">Details</h2>
       <table>
         <thead><tr>
-          <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Afsluitreden</th>
+          <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Afsluitreden</th><th>Einddatum</th>
         </tr></thead>
         <tbody id="ab-detailBody"></tbody>
       </table>
@@ -259,7 +259,7 @@
       <div class="tile"><div class="tile-value" id="ar-topMonth">-</div><div class="tile-label">Beste maand</div></div>
     </div>
     <div class="chart-tile">
-      <h2>Aanbod resultaten per maand (uitgesplitst op aanbodnaam)</h2>
+      <h2>Aanbod resultaten per maand (uitgesplitst op resultaat)</h2>
       <canvas id="ar-chart" height="120"></canvas>
       <p class="hint">Klik op een staaf om de details te bekijken</p>
     </div>
@@ -267,7 +267,7 @@
       <h2 id="ar-detailTitle">Details</h2>
       <table>
         <thead><tr>
-          <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Team</th><th>Afsluitreden</th>
+          <th>Einddatum</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Team</th><th>Afsluitreden</th>
         </tr></thead>
         <tbody id="ar-detailBody"></tbody>
       </table>
@@ -363,14 +363,17 @@ function generateAanbod() {
       for (let i = 0; i < count; i++) {
         const team = rand(teamsList);
         const afsluitreden = Math.random() < 0.3 ? rand(afsluitredenen) : null;
+        const startDt = new Date(year, month - 1, randInt(1, 28));
+        const eindDatum = afsluitreden ? new Date(startDt.getTime() + (30 + randInt(0, 180)) * 86400000) : null;
         data.push({
           coach: rand(coachesByTeam[team]),
           team,
-          date: new Date(year, month - 1, randInt(1, 28)),
+          date: startDt,
           aanbodnaam: rand(aanbodnamen),
           inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
           administratienummer: String(randInt(1000000, 9999999)),
-          afsluitreden
+          afsluitreden,
+          eindDatum
         });
       }
     }
@@ -788,7 +791,8 @@ const abDashboard = (function() {
         <td>${item.administratienummer}</td>
         <td>${item.coach}</td>
         <td>${item.team}</td>
-        <td>${item.afsluitreden || 'Nog actief'}</td>`;
+        <td>${item.afsluitreden || 'Nog actief'}</td>
+        <td>${item.eindDatum ? formatDate(item.eindDatum) : ''}</td>`;
       tbody.appendChild(tr);
     });
     const section = document.getElementById('ab-detailSection');
@@ -806,13 +810,13 @@ const abDashboard = (function() {
 // --- Aanbod resultaat dashboard (stacked bar chart, only records with afsluitreden, no coach filter) ---
 const arStackColors = ['#6929c4','#1192e8','#005d5d','#9f1853','#fa4d56','#570408','#198038','#002d9c','#ee538b','#b28600','#009d9a','#012749','#8a3800','#a56eff','#006161'];
 
-const aanbodResultaatData = aanbodData.filter(a => a.afsluitreden !== null);
+const aanbodResultaatData = aanbodData.filter(a => a.afsluitreden !== null && a.eindDatum !== null);
 
 const arDashboard = (function() {
   let chart = null;
   let currentBuckets = [];
   const filterDefs = [
-    { key: 'year', selectId: 'ar-filterYear', allLabel: 'Alle jaren', accessor: a => a.date.getFullYear(), sortDesc: true },
+    { key: 'year', selectId: 'ar-filterYear', allLabel: 'Alle jaren', accessor: a => a.eindDatum.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'ar-filterTeam', allLabel: 'Alle teams', accessor: a => a.team },
     { key: 'aanbod', selectId: 'ar-filterAanbod', allLabel: 'Alle aanbod', accessor: a => a.aanbodnaam },
     { key: 'afsluitreden', selectId: 'ar-filterAfsluitreden', allLabel: 'Alle afsluitredenen', accessor: a => a.afsluitreden }
@@ -874,14 +878,14 @@ const arDashboard = (function() {
 
     const monthMap = {};
     filtered.forEach(item => {
-      const d = item.date;
+      const d = item.eindDatum;
       const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
       if (!monthMap[key]) monthMap[key] = [];
       monthMap[key].push(item);
     });
     let minY = Infinity, maxY = -Infinity, minM = 12, maxM = 1;
     aanbodResultaatData.forEach(item => {
-      const y = item.date.getFullYear(), m = item.date.getMonth() + 1;
+      const y = item.eindDatum.getFullYear(), m = item.eindDatum.getMonth() + 1;
       if (y < minY || (y === minY && m < minM)) { minY = y; minM = m; }
       if (y > maxY || (y === maxY && m > maxM)) { maxY = y; maxM = m; }
     });
@@ -912,10 +916,10 @@ const arDashboard = (function() {
       document.getElementById('ar-topMonth').textContent = '-';
     }
 
-    const activeAanbod = [...new Set(filtered.map(a => a.aanbodnaam))].sort();
-    const datasets = activeAanbod.map((naam, i) => ({
-      label: naam,
-      data: currentBuckets.map(b => b.items.filter(a => a.aanbodnaam === naam).length),
+    const activeRedenen = [...new Set(filtered.map(a => a.afsluitreden))].sort();
+    const datasets = activeRedenen.map((reden, i) => ({
+      label: reden,
+      data: currentBuckets.map(b => b.items.filter(a => a.afsluitreden === reden).length),
       backgroundColor: arStackColors[i % arStackColors.length],
       borderRadius: 2
     }));
@@ -962,20 +966,20 @@ const arDashboard = (function() {
   function showDetail(monthIndex, datasetIndex) {
     const bucket = currentBuckets[monthIndex];
     if (!bucket) return;
-    const aanbodnaam = chart.data.datasets[datasetIndex]?.label;
+    const reden = chart.data.datasets[datasetIndex]?.label;
     let items = bucket.items;
     let title = `Aanbod resultaat in ${bucket.label} (${items.length})`;
-    if (aanbodnaam) {
-      items = items.filter(a => a.aanbodnaam === aanbodnaam);
-      title = `${aanbodnaam} resultaat in ${bucket.label} (${items.length})`;
+    if (reden) {
+      items = items.filter(a => a.afsluitreden === reden);
+      title = `${reden} in ${bucket.label} (${items.length})`;
     }
     document.getElementById('ar-detailTitle').textContent = title;
     const tbody = document.getElementById('ar-detailBody');
     tbody.innerHTML = '';
-    [...items].sort((a, b) => a.date - b.date).forEach(item => {
+    [...items].sort((a, b) => a.eindDatum - b.eindDatum).forEach(item => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${formatDate(item.date)}</td>
+        <td>${formatDate(item.eindDatum)}</td>
         <td>${item.aanbodnaam}</td>
         <td>${item.inwoner}</td>
         <td>${item.administratienummer}</td>

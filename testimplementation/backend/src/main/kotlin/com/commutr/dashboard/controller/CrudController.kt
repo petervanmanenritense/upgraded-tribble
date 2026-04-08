@@ -13,7 +13,7 @@ data class CoachRequest(val fullName: String, val teamId: Long)
 data class InwonerRequest(val fullName: String, val birthdate: String, val administratienummer: String)
 data class PlaatsingRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val startDate: String, val type: String)
 data class ContactmomentRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val date: String, val kanaal: String, val onderwerp: String)
-data class AanbodRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val startDate: String, val aanbodnaam: String, val afsluitreden: String?)
+data class AanbodRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val startDate: String, val aanbodnaam: String, val afsluitreden: String?, val eindDatum: String?)
 
 // --- Team Controller ---
 
@@ -253,7 +253,8 @@ class AanbodController(
         return aanbodRepository.save(Aanbod(
             inwoner = inwoner, coach = coach, team = team,
             startDate = java.time.LocalDate.parse(request.startDate),
-            aanbodnaam = request.aanbodnaam, afsluitreden = request.afsluitreden
+            aanbodnaam = request.aanbodnaam, afsluitreden = request.afsluitreden,
+            eindDatum = request.eindDatum?.let { java.time.LocalDate.parse(it) }
         ))
     }
 
@@ -266,6 +267,7 @@ class AanbodController(
         aanbod.startDate = java.time.LocalDate.parse(request.startDate)
         aanbod.aanbodnaam = request.aanbodnaam
         aanbod.afsluitreden = request.afsluitreden
+        aanbod.eindDatum = request.eindDatum?.let { java.time.LocalDate.parse(it) }
         return aanbodRepository.save(aanbod)
     }
 

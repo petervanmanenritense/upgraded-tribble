@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.016">
+<testsuite name="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:07" hostname="RITENSE-176.local" time="0.012">
   <properties/>
-  <testcase name="filters by onderwerp()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.004"/>
-  <testcase name="filters by year using date field()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.003"/>
-  <testcase name="filters by kanaal()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.005"/>
-  <testcase name="counts all records()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.003"/>
-  <system-out><![CDATA[2026-04-08T15:26:05.217+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary]: GetSummary does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T15:26:05.219+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary
+  <testcase name="filters by onderwerp()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.003"/>
+  <testcase name="filters by year using date field()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.002"/>
+  <testcase name="filters by kanaal()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.003"/>
+  <testcase name="counts all records()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary" time="0.002"/>
+  <system-out><![CDATA[2026-04-08T16:07:07.064+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary]: GetSummary does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:07.066+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetSummary
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.controller.DashboardControllerTest$GetFilters" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:04" hostname="RITENSE-176.local" time="0.006">
+<testsuite name="com.commutr.dashboard.controller.DashboardControllerTest$GetFilters" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:06" hostname="RITENSE-176.local" time="0.007">
   <properties/>
-  <testcase name="returns filter options()" classname="com.commutr.dashboard.controller.DashboardControllerTest$GetFilters" time="0.006"/>
-  <system-out><![CDATA[2026-04-08T15:26:04.616+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.controller.DashboardControllerTest$GetFilters]: GetFilters does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T15:26:04.617+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.controller.DashboardControllerTest$GetFilters
+  <testcase name="returns filter options()" classname="com.commutr.dashboard.controller.DashboardControllerTest$GetFilters" time="0.007"/>
+  <system-out><![CDATA[2026-04-08T16:07:06.151+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.controller.DashboardControllerTest$GetFilters]: GetFilters does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:06.152+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.controller.DashboardControllerTest$GetFilters
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

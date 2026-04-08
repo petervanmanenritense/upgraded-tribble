@@ -273,22 +273,24 @@ class CrudControllerTest {
             mockMvc.perform(
                 post("/api/v1/aanbod")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "aanbodnaam": "Taalcoaching", "afsluitreden": null}""")
+                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "aanbodnaam": "Taalcoaching", "afsluitreden": null, "eindDatum": null}""")
             )
                 .andExpect(status().isCreated)
                 .andExpect(jsonPath("$.aanbodnaam").value("Taalcoaching"))
                 .andExpect(jsonPath("$.afsluitreden").doesNotExist())
+                .andExpect(jsonPath("$.eindDatum").doesNotExist())
         }
 
         @Test
-        fun `POST creates aanbod with afsluitreden`() {
+        fun `POST creates aanbod with afsluitreden and eindDatum`() {
             mockMvc.perform(
                 post("/api/v1/aanbod")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "aanbodnaam": "Taalcoaching", "afsluitreden": "Succesvol afgerond"}""")
+                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "aanbodnaam": "Taalcoaching", "afsluitreden": "Succesvol afgerond", "eindDatum": "2025-09-15"}""")
             )
                 .andExpect(status().isCreated)
                 .andExpect(jsonPath("$.afsluitreden").value("Succesvol afgerond"))
+                .andExpect(jsonPath("$.eindDatum").value("2025-09-15"))
         }
 
         @Test
@@ -298,7 +300,7 @@ class CrudControllerTest {
             mockMvc.perform(
                 put("/api/v1/aanbod/${a.id}")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-07-01", "aanbodnaam": "Werkfit traject", "afsluitreden": "Succesvol afgerond"}""")
+                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-07-01", "aanbodnaam": "Werkfit traject", "afsluitreden": "Succesvol afgerond", "eindDatum": "2025-10-01"}""")
             )
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.aanbodnaam").value("Werkfit traject"))

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.013">
+<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:07" hostname="RITENSE-176.local" time="0.01">
   <properties/>
-  <testcase name="buildSummary with empty list returns zeros()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.003"/>
+  <testcase name="buildSummary with empty list returns zeros()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.001"/>
   <testcase name="formatMonth formats correctly()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.002"/>
-  <testcase name="buildMonthLabels with year filter returns 12 months()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.003"/>
-  <testcase name="buildMonthLabels with empty dates returns empty()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.002"/>
+  <testcase name="buildMonthLabels with year filter returns 12 months()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.001"/>
+  <testcase name="buildMonthLabels with empty dates returns empty()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.001"/>
   <testcase name="buildMonthLabels without year filter spans full range()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities" time="0.002"/>
-  <system-out><![CDATA[2026-04-08T15:26:05.403+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities]: CompanionUtilities does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T15:26:05.405+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities
+  <system-out><![CDATA[2026-04-08T16:07:07.246+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities]: CompanionUtilities does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:07.247+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$CompanionUtilities
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)

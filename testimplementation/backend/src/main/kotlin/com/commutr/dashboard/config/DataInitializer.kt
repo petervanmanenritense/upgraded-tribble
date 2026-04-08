@@ -142,14 +142,20 @@ class DataInitializer(
         )
         repeat(300) {
             val coach = coaches[random.nextInt(coaches.size)]
+            val aanbodStartDate = randomDate()
+            val afsluitreden = afsluitredenen[random.nextInt(afsluitredenen.size)]
+            val eindDatum = if (afsluitreden != null) {
+                aanbodStartDate.plusDays(30L + random.nextInt(180))
+            } else null
             aanbodRepository.save(
                 Aanbod(
                     inwoner = inwoners[random.nextInt(inwoners.size)],
                     coach = coach,
                     team = coach.team!!,
-                    startDate = randomDate(),
+                    startDate = aanbodStartDate,
                     aanbodnaam = aanbodnamen[random.nextInt(aanbodnamen.size)],
-                    afsluitreden = afsluitredenen[random.nextInt(afsluitredenen.size)]
+                    afsluitreden = afsluitreden,
+                    eindDatum = eindDatum
                 )
             )
         }

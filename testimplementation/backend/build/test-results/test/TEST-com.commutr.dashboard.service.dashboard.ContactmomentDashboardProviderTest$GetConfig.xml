@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.006">
+<testsuite name="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:07" hostname="RITENSE-176.local" time="0.003">
   <properties/>
-  <testcase name="chart type is bar with green color()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig" time="0.003"/>
-  <testcase name="returns correct filter keys()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig" time="0.003"/>
-  <system-out><![CDATA[2026-04-08T15:26:05.183+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig]: GetConfig does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T15:26:05.185+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig
+  <testcase name="chart type is bar with green color()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig" time="0.001"/>
+  <testcase name="returns correct filter keys()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig" time="0.002"/>
+  <system-out><![CDATA[2026-04-08T16:07:07.038+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig]: GetConfig does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:07.039+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetConfig
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)

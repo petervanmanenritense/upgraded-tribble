@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.02">
+<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:07" hostname="RITENSE-176.local" time="0.016">
   <properties/>
-  <testcase name="cascading - team filter narrows other options()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.005"/>
+  <testcase name="cascading - team filter narrows other options()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.004"/>
   <testcase name="cascading - year filter does not apply to year options()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.005"/>
-  <testcase name="returns all distinct teams()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.004"/>
-  <testcase name="returns all distinct years()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.004"/>
-  <system-out><![CDATA[2026-04-08T15:26:05.457+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions]: GetFilterOptions does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T15:26:05.459+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions
+  <testcase name="returns all distinct teams()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.003"/>
+  <testcase name="returns all distinct years()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.003"/>
+  <system-out><![CDATA[2026-04-08T16:07:07.291+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions]: GetFilterOptions does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:07.292+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)

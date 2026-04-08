@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.controller.DashboardControllerTest$GetSummary" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:04" hostname="RITENSE-176.local" time="0.014">
+<testsuite name="com.commutr.dashboard.controller.DashboardControllerTest$GetSummary" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:06" hostname="RITENSE-176.local" time="0.015">
   <properties/>
-  <testcase name="returns summary for plaatsingen()" classname="com.commutr.dashboard.controller.DashboardControllerTest$GetSummary" time="0.008"/>
+  <testcase name="returns summary for plaatsingen()" classname="com.commutr.dashboard.controller.DashboardControllerTest$GetSummary" time="0.009"/>
   <testcase name="applies query param filters()" classname="com.commutr.dashboard.controller.DashboardControllerTest$GetSummary" time="0.005"/>
-  <system-out><![CDATA[2026-04-08T15:26:04.625+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.controller.DashboardControllerTest$GetSummary]: GetSummary does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T15:26:04.626+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.controller.DashboardControllerTest$GetSummary
+  <system-out><![CDATA[2026-04-08T16:07:06.161+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.controller.DashboardControllerTest$GetSummary]: GetSummary does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:06.161+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.controller.DashboardControllerTest$GetSummary
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:06" hostname="RITENSE-176.local" time="0.016">
+  <properties/>
+  <testcase name="filters by afsluitreden()" classname="com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary" time="0.004"/>
+  <testcase name="filters by aanbodnaam()" classname="com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary" time="0.004"/>
+  <testcase name="filters by team()" classname="com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary" time="0.003"/>
+  <testcase name="filters by year on eindDatum()" classname="com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary" time="0.003"/>
+  <system-out><![CDATA[2026-04-08T16:07:06.791+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary]: GetSummary does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:06.793+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest$GetSummary
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.id,a1_0.aanbodnaam,a1_0.afsluitreden,a1_0.coach_id,a1_0.eind_datum,a1_0.inwoner_id,a1_0.start_date,a1_0.team_id from aanbod a1_0 where a1_0.afsluitreden is not null and a1_0.eind_datum is not null and a1_0.afsluitreden not in (?,?) and a1_0.afsluitreden=?
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.id,a1_0.aanbodnaam,a1_0.afsluitreden,a1_0.coach_id,a1_0.eind_datum,a1_0.inwoner_id,a1_0.start_date,a1_0.team_id from aanbod a1_0 where a1_0.afsluitreden is not null and a1_0.eind_datum is not null and a1_0.afsluitreden not in (?,?) and a1_0.aanbodnaam=?
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.id,a1_0.aanbodnaam,a1_0.afsluitreden,a1_0.coach_id,a1_0.eind_datum,a1_0.inwoner_id,a1_0.start_date,a1_0.team_id from aanbod a1_0 join teams t1_0 on t1_0.id=a1_0.team_id where a1_0.afsluitreden is not null and a1_0.eind_datum is not null and a1_0.afsluitreden not in (?,?) and t1_0.name=?
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into aanbod (aanbodnaam,afsluitreden,coach_id,eind_datum,inwoner_id,start_date,team_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.id,a1_0.aanbodnaam,a1_0.afsluitreden,a1_0.coach_id,a1_0.eind_datum,a1_0.inwoner_id,a1_0.start_date,a1_0.team_id from aanbod a1_0 where a1_0.afsluitreden is not null and a1_0.eind_datum is not null and a1_0.afsluitreden not in (?,?) and a1_0.eind_datum between ? and ?
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

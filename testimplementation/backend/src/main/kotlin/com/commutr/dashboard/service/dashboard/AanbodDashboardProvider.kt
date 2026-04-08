@@ -53,7 +53,8 @@ class AanbodDashboardProvider(
                 ColumnConfig("administratienummer", "Administratienummer"),
                 ColumnConfig("coach", "Coach"),
                 ColumnConfig("team", "Team"),
-                ColumnConfig("afsluitreden", "Afsluitreden")
+                ColumnConfig("afsluitreden", "Afsluitreden"),
+                ColumnConfig("eindDatum", "Einddatum")
             )
         )
     )
@@ -177,7 +178,8 @@ class AanbodDashboardProvider(
                 "administratienummer" to (a.inwoner?.administratienummer),
                 "coach" to (a.coach?.fullName),
                 "team" to (a.team?.name),
-                "afsluitreden" to a.afsluitreden
+                "afsluitreden" to a.afsluitreden,
+                "eindDatum" to a.eindDatum?.toString()
             )
         }
 

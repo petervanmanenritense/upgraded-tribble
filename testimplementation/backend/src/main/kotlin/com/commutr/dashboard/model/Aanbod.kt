@@ -29,5 +29,8 @@ class Aanbod(
     var aanbodnaam: String = "",
 
     @Column(nullable = true)
-    var afsluitreden: String? = null
+    var afsluitreden: String? = null,
+
+    @Column(nullable = true)
+    var eindDatum: LocalDate? = null
 )

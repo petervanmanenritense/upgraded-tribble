@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - AanbodResultaatDashboardProviderTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>AanbodResultaatDashboardProviderTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.commutr.dashboard.service.dashboard.html">com.commutr.dashboard.service.dashboard</a> &gt; AanbodResultaatDashboardProviderTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">1</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.004s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">id and label are correct()</td>
+<td class="success">0.004s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>2026-04-08T16:07:06.581+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest]: AanbodResultaatDashboardProviderTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T16:07:06.583+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.AanbodResultaatDashboardProviderTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.4)
+
+2026-04-08T16:07:06.592+02:00  INFO 81998 --- [    Test worker] s.d.AanbodResultaatDashboardProviderTest : Starting AanbodResultaatDashboardProviderTest using Java 21.0.1 with PID 81998 (started by petervanmanen in /Users/petervanmanen/Documents/commutr/plaatsingdashboardpoc/testimplementation/backend)
+2026-04-08T16:07:06.592+02:00  INFO 81998 --- [    Test worker] s.d.AanbodResultaatDashboardProviderTest : The following 1 profile is active: &quot;test&quot;
+2026-04-08T16:07:06.666+02:00  INFO 81998 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-08T16:07:06.675+02:00  INFO 81998 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 8 ms. Found 6 JPA repository interfaces.
+2026-04-08T16:07:06.680+02:00  INFO 81998 --- [    Test worker] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-04-08T16:07:06.683+02:00  INFO 81998 --- [    Test worker] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:d1cb0338-8815-4b56-b251-ec6642855f95;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-04-08T16:07:06.691+02:00  INFO 81998 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-08T16:07:06.692+02:00  INFO 81998 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-08T16:07:06.695+02:00  INFO 81998 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-08T16:07:06.696+02:00  INFO 81998 --- [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@2ca307d3']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-08T16:07:06.717+02:00  INFO 81998 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: drop table if exists aanbod cascade 
+Hibernate: drop table if exists coaches cascade 
+Hibernate: drop table if exists contactmomenten cascade 
+Hibernate: drop table if exists inwoners cascade 
+Hibernate: drop table if exists plaatsingen cascade 
+Hibernate: drop table if exists teams cascade 
+Hibernate: create table aanbod (eind_datum date, start_date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, aanbodnaam varchar(255) not null, afsluitreden varchar(255), primary key (id))
+Hibernate: create table coaches (id bigint generated by default as identity, team_id bigint not null, full_name varchar(255) not null, primary key (id))
+Hibernate: create table contactmomenten (date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, kanaal varchar(255) not null, onderwerp varchar(255) not null, primary key (id))
+Hibernate: create table inwoners (birthdate date not null, id bigint generated by default as identity, administratienummer varchar(255) not null unique, full_name varchar(255) not null, primary key (id))
+Hibernate: create table plaatsingen (start_date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, type varchar(255) not null, primary key (id))
+Hibernate: create table teams (id bigint generated by default as identity, name varchar(255) not null unique, primary key (id))
+Hibernate: alter table if exists aanbod add constraint FKfgmuhwg1fm8glx1nad2g77kd8 foreign key (coach_id) references coaches
+Hibernate: alter table if exists aanbod add constraint FK31pkew2bhdwbncm4lyux5pv9q foreign key (inwoner_id) references inwoners
+Hibernate: alter table if exists aanbod add constraint FKsb6ug0bsb2hm23ep5xp8o1sfp foreign key (team_id) references teams
+Hibernate: alter table if exists coaches add constraint FKcdq4rnavxgc1iff9jawneh758 foreign key (team_id) references teams
+Hibernate: alter table if exists contactmomenten add constraint FKyodem11ua2kl0m6m86m606od foreign key (coach_id) references coaches
+Hibernate: alter table if exists contactmomenten add constraint FK4r6y9o8y207rxcbpl5ri5t5jw foreign key (inwoner_id) references inwoners
+Hibernate: alter table if exists contactmomenten add constraint FKonbmlv2bhpa06mru3vbrcq8jy foreign key (team_id) references teams
+Hibernate: alter table if exists plaatsingen add constraint FKqw14ngtsc6ol4ho81hpjclvk8 foreign key (coach_id) references coaches
+Hibernate: alter table if exists plaatsingen add constraint FKratvx9c7lc7bgey9hoj1aspx7 foreign key (inwoner_id) references inwoners
+Hibernate: alter table if exists plaatsingen add constraint FKnfnw3spbti6aw8bsvfjg8vagg foreign key (team_id) references teams
+2026-04-08T16:07:06.723+02:00  INFO 81998 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-08T16:07:06.743+02:00  INFO 81998 --- [    Test worker] s.d.AanbodResultaatDashboardProviderTest : Started AanbodResultaatDashboardProviderTest in 0.159 seconds (process running for 4.586)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.5</a> at 8 apr. 2026 16:07:07</p>
+</div>
+</div>
+</body>
+</html>
