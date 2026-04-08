@@ -91,6 +91,7 @@
     <button class="tab-btn active" data-view="plaatsingen">Plaatsingen</button>
     <button class="tab-btn" data-view="contactmomenten">Contactmomenten</button>
     <button class="tab-btn" data-view="aanbod">Aanbod inzet</button>
+    <button class="tab-btn" data-view="aanbodresultaat">Aanbod resultaat</button>
   </div>
 </div>
 
@@ -226,6 +227,49 @@
           <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Afsluitreden</th>
         </tr></thead>
         <tbody id="ab-detailBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- AANBOD RESULTAAT VIEW -->
+<div class="view" id="view-aanbodresultaat">
+  <div class="filters">
+    <div class="filter-group">
+      <label for="ar-filterYear">Jaar</label>
+      <select id="ar-filterYear"><option value="">Alle jaren</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ar-filterTeam">Team</label>
+      <select id="ar-filterTeam"><option value="">Alle teams</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ar-filterAanbod">Aanbodnaam</label>
+      <select id="ar-filterAanbod"><option value="">Alle aanbod</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="ar-filterAfsluitreden">Afsluitreden</label>
+      <select id="ar-filterAfsluitreden"><option value="">Alle afsluitredenen</option></select>
+    </div>
+  </div>
+  <div class="content">
+    <div class="summary">
+      <div class="tile"><div class="tile-value" id="ar-totalCount">0</div><div class="tile-label">Totaal resultaten</div></div>
+      <div class="tile"><div class="tile-value" id="ar-avgPerMonth">0</div><div class="tile-label">Gemiddeld per maand</div></div>
+      <div class="tile"><div class="tile-value" id="ar-topMonth">-</div><div class="tile-label">Beste maand</div></div>
+    </div>
+    <div class="chart-tile">
+      <h2>Aanbod resultaten per maand (uitgesplitst op aanbodnaam)</h2>
+      <canvas id="ar-chart" height="120"></canvas>
+      <p class="hint">Klik op een staaf om de details te bekijken</p>
+    </div>
+    <div class="table-section hidden" id="ar-detailSection">
+      <h2 id="ar-detailTitle">Details</h2>
+      <table>
+        <thead><tr>
+          <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Team</th><th>Afsluitreden</th>
+        </tr></thead>
+        <tbody id="ar-detailBody"></tbody>
       </table>
     </div>
   </div>
@@ -759,8 +803,200 @@ const abDashboard = (function() {
   return { update };
 })();
 
+// --- Aanbod resultaat dashboard (stacked bar chart, only records with afsluitreden, no coach filter) ---
+const arStackColors = ['#6929c4','#1192e8','#005d5d','#9f1853','#fa4d56','#570408','#198038','#002d9c','#ee538b','#b28600','#009d9a','#012749','#8a3800','#a56eff','#006161'];
+
+const aanbodResultaatData = aanbodData.filter(a => a.afsluitreden !== null);
+
+const arDashboard = (function() {
+  let chart = null;
+  let currentBuckets = [];
+  const filterDefs = [
+    { key: 'year', selectId: 'ar-filterYear', allLabel: 'Alle jaren', accessor: a => a.date.getFullYear(), sortDesc: true },
+    { key: 'team', selectId: 'ar-filterTeam', allLabel: 'Alle teams', accessor: a => a.team },
+    { key: 'aanbod', selectId: 'ar-filterAanbod', allLabel: 'Alle aanbod', accessor: a => a.aanbodnaam },
+    { key: 'afsluitreden', selectId: 'ar-filterAfsluitreden', allLabel: 'Alle afsluitredenen', accessor: a => a.afsluitreden }
+  ];
+
+  function getFilterValues() {
+    const vals = {};
+    filterDefs.forEach(f => { vals[f.key] = document.getElementById(f.selectId).value; });
+    return vals;
+  }
+
+  function applyFilters(data, filterVals) {
+    return data.filter(item => filterDefs.every(f => {
+      const val = filterVals[f.key];
+      if (!val) return true;
+      return String(f.accessor(item)) === val;
+    }));
+  }
+
+  function repopulate(selectId, currentValue, options, allLabel) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '';
+    const allOpt = document.createElement('option');
+    allOpt.value = '';
+    allOpt.textContent = allLabel;
+    sel.appendChild(allOpt);
+    options.forEach(val => {
+      const o = document.createElement('option');
+      o.value = val;
+      o.textContent = val;
+      if (String(val) === String(currentValue)) o.selected = true;
+      sel.appendChild(o);
+    });
+    if (currentValue && !options.map(String).includes(String(currentValue))) sel.value = '';
+  }
+
+  function updateFilterOptions(filterVals) {
+    filterDefs.forEach(f => {
+      const otherFilters = filterDefs.filter(o => o.key !== f.key);
+      const available = aanbodResultaatData.filter(item =>
+        otherFilters.every(o => {
+          const val = filterVals[o.key];
+          if (!val) return true;
+          return String(o.accessor(item)) === val;
+        })
+      );
+      const options = [...new Set(available.map(f.accessor))].map(String).sort((a, b) => {
+        if (f.sortDesc) return b - a;
+        return a.localeCompare(b);
+      });
+      repopulate(f.selectId, filterVals[f.key], options, f.allLabel);
+    });
+  }
+
+  function update() {
+    const filterVals = getFilterValues();
+    updateFilterOptions(filterVals);
+    const filtered = applyFilters(aanbodResultaatData, getFilterValues());
+
+    const monthMap = {};
+    filtered.forEach(item => {
+      const d = item.date;
+      const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+      if (!monthMap[key]) monthMap[key] = [];
+      monthMap[key].push(item);
+    });
+    let minY = Infinity, maxY = -Infinity, minM = 12, maxM = 1;
+    aanbodResultaatData.forEach(item => {
+      const y = item.date.getFullYear(), m = item.date.getMonth() + 1;
+      if (y < minY || (y === minY && m < minM)) { minY = y; minM = m; }
+      if (y > maxY || (y === maxY && m > maxM)) { maxY = y; maxM = m; }
+    });
+    const yearFilter = getFilterValues().year;
+    if (yearFilter) {
+      const fy = parseInt(yearFilter);
+      minY = fy; minM = 1;
+      maxY = fy; maxM = 12;
+    }
+    currentBuckets = [];
+    for (let y = minY; y <= maxY; y++) {
+      const startM = (y === minY) ? minM : 1;
+      const endM = (y === maxY) ? maxM : 12;
+      for (let m = startM; m <= endM; m++) {
+        const key = `${y}-${pad(m)}`;
+        currentBuckets.push({ key, label: `${monthNames[m-1]} ${y}`, items: monthMap[key] || [] });
+      }
+    }
+
+    const total = filtered.length;
+    document.getElementById('ar-totalCount').textContent = total;
+    const months = currentBuckets.length || 1;
+    document.getElementById('ar-avgPerMonth').textContent = Math.round(total / months);
+    if (currentBuckets.length > 0) {
+      const best = currentBuckets.reduce((a, b) => b.items.length > a.items.length ? b : a);
+      document.getElementById('ar-topMonth').textContent = `${best.label} (${best.items.length})`;
+    } else {
+      document.getElementById('ar-topMonth').textContent = '-';
+    }
+
+    const activeAanbod = [...new Set(filtered.map(a => a.aanbodnaam))].sort();
+    const datasets = activeAanbod.map((naam, i) => ({
+      label: naam,
+      data: currentBuckets.map(b => b.items.filter(a => a.aanbodnaam === naam).length),
+      backgroundColor: arStackColors[i % arStackColors.length],
+      borderRadius: 2
+    }));
+
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById('ar-chart'), {
+      type: 'bar',
+      data: {
+        labels: currentBuckets.map(b => b.label),
+        datasets
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { font: { family: 'IBM Plex Sans', size: 11 }, boxWidth: 12, padding: 16 }
+          },
+          tooltip: {
+            backgroundColor: '#161616',
+            titleFont: { family: 'IBM Plex Sans', size: 12 },
+            bodyFont: { family: 'IBM Plex Sans', size: 12 },
+            cornerRadius: 0,
+            padding: 12
+          }
+        },
+        scales: {
+          x: { stacked: true, ticks: { font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' }, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1, font: { family: 'IBM Plex Sans', size: 12 }, color: '#525252' }, grid: { color: '#e0e0e0' } }
+        },
+        onClick(evt, elements) {
+          if (elements.length > 0) {
+            const el = elements[0];
+            showDetail(el.index, el.datasetIndex);
+          }
+        }
+      }
+    });
+
+    document.getElementById('ar-detailSection').classList.add('hidden');
+  }
+
+  function showDetail(monthIndex, datasetIndex) {
+    const bucket = currentBuckets[monthIndex];
+    if (!bucket) return;
+    const aanbodnaam = chart.data.datasets[datasetIndex]?.label;
+    let items = bucket.items;
+    let title = `Aanbod resultaat in ${bucket.label} (${items.length})`;
+    if (aanbodnaam) {
+      items = items.filter(a => a.aanbodnaam === aanbodnaam);
+      title = `${aanbodnaam} resultaat in ${bucket.label} (${items.length})`;
+    }
+    document.getElementById('ar-detailTitle').textContent = title;
+    const tbody = document.getElementById('ar-detailBody');
+    tbody.innerHTML = '';
+    [...items].sort((a, b) => a.date - b.date).forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(item.date)}</td>
+        <td>${item.aanbodnaam}</td>
+        <td>${item.inwoner}</td>
+        <td>${item.administratienummer}</td>
+        <td>${item.team}</td>
+        <td>${item.afsluitreden}</td>`;
+      tbody.appendChild(tr);
+    });
+    const section = document.getElementById('ar-detailSection');
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  filterDefs.forEach(f => {
+    document.getElementById(f.selectId).addEventListener('change', update);
+  });
+
+  return { update };
+})();
+
 // --- Tabs ---
-const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard };
+const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard, aanbodresultaat: arDashboard };
 let activeView = 'plaatsingen';
 document.querySelectorAll('.tab-btn').forEach(tab => {
   tab.addEventListener('click', () => {

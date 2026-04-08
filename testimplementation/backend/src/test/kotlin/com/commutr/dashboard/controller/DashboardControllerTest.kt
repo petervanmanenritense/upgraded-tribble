@@ -52,10 +52,11 @@ class DashboardControllerTest {
         fun `returns all dashboards`() {
             mockMvc.perform(get("/api/v1/dashboards"))
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$.length()").value(4))
                 .andExpect(jsonPath("$[?(@.id == 'plaatsingen')]").exists())
                 .andExpect(jsonPath("$[?(@.id == 'contactmomenten')]").exists())
                 .andExpect(jsonPath("$[?(@.id == 'aanbod')]").exists())
+                .andExpect(jsonPath("$[?(@.id == 'aanbodresultaat')]").exists())
         }
     }
 
