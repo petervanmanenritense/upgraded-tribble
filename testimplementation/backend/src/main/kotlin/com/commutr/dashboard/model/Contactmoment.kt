@@ -1,0 +1,33 @@
+package com.commutr.dashboard.model
+
+import jakarta.persistence.*
+import java.time.LocalDate
+
+@Entity
+@Table(name = "contactmomenten")
+class Contactmoment(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "inwoner_id", nullable = false)
+    var inwoner: Inwoner? = null,
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "coach_id", nullable = false)
+    var coach: Coach? = null,
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "team_id", nullable = false)
+    var team: Team? = null,
+
+    @Column(nullable = false)
+    var date: LocalDate = LocalDate.now(),
+
+    @Column(nullable = false)
+    var kanaal: String = "",
+
+    @Column(nullable = false)
+    var onderwerp: String = ""
+)

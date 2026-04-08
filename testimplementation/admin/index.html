@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beheer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/carbon-components@10.58.0/css/carbon-components.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+      background: #f4f4f4;
+      color: #161616;
+    }
+
+    /* Header */
+    .admin-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 48px; background: #161616; color: #fff;
+      display: flex; align-items: center; padding: 0 1rem;
+    }
+    .admin-header h1 { font-size: 0.875rem; font-weight: 600; margin: 0; }
+
+    /* Layout */
+    .admin-layout {
+      display: flex; margin-top: 48px; min-height: calc(100vh - 48px);
+    }
+
+    /* Side Nav */
+    .admin-sidenav {
+      width: 256px; min-width: 256px; background: #fff;
+      border-right: 1px solid #e0e0e0; padding-top: 1rem;
+    }
+    .admin-sidenav ul { list-style: none; margin: 0; padding: 0; }
+    .admin-sidenav li {
+      padding: 0.75rem 1rem; cursor: pointer; font-size: 0.875rem;
+      border-left: 3px solid transparent; transition: background 0.15s;
+    }
+    .admin-sidenav li:hover { background: #e0e0e0; }
+    .admin-sidenav li.active {
+      background: #e0e0e0; border-left-color: #0f62fe; font-weight: 600;
+    }
+
+    /* Content */
+    .admin-content {
+      flex: 1; padding: 2rem; overflow-x: auto;
+    }
+    .content-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .content-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+
+    /* Table */
+    .bx--data-table-container { background: #fff; }
+    table.bx--data-table {
+      width: 100%; border-collapse: collapse;
+    }
+    table.bx--data-table thead tr th {
+      background: #e0e0e0; padding: 0.75rem 1rem; text-align: left;
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.02em; color: #161616; border: none;
+    }
+    table.bx--data-table tbody tr td {
+      padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid #e0e0e0;
+    }
+    table.bx--data-table tbody tr:nth-child(even) { background: #f4f4f4; }
+    table.bx--data-table tbody tr:hover { background: #e8e8e8; }
+
+    .action-btns { display: flex; gap: 0.5rem; }
+    .btn {
+      border: none; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 500;
+      cursor: pointer; border-radius: 0; font-family: inherit;
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      transition: background 0.15s;
+    }
+    .btn-primary { background: #0f62fe; color: #fff; }
+    .btn-primary:hover { background: #0353e9; }
+    .btn-danger { background: #da1e28; color: #fff; }
+    .btn-danger:hover { background: #b81921; }
+    .btn-secondary { background: #393939; color: #fff; }
+    .btn-secondary:hover { background: #4c4c4c; }
+    .btn-ghost {
+      background: transparent; color: #0f62fe; padding: 0.5rem 0.75rem;
+    }
+    .btn-ghost:hover { background: #e0e0e0; }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 200;
+      justify-content: center; align-items: flex-start; padding-top: 5rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; width: 500px; max-width: 90vw; max-height: 80vh;
+      overflow-y: auto; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; border-bottom: 1px solid #e0e0e0;
+    }
+    .modal-header h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+    .modal-close {
+      background: none; border: none; font-size: 1.25rem; cursor: pointer;
+      color: #525252; padding: 0.25rem;
+    }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 0.5rem;
+      padding: 1rem 1.5rem; border-top: 1px solid #e0e0e0;
+    }
+
+    /* Form fields */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block; font-size: 0.75rem; font-weight: 500;
+      margin-bottom: 0.25rem; color: #525252;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%; padding: 0.625rem 1rem; font-size: 0.875rem;
+      border: none; border-bottom: 1px solid #8d8d8d;
+      background: #f4f4f4; font-family: inherit; outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-bottom-color: #0f62fe; outline: 2px solid #0f62fe; outline-offset: -2px;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed; top: 56px; right: 1rem; z-index: 300;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .toast {
+      padding: 0.75rem 1rem; min-width: 280px; font-size: 0.875rem;
+      border-left: 3px solid; animation: fadeIn 0.2s ease;
+    }
+    .toast-success { background: #defbe6; border-color: #198038; color: #161616; }
+    .toast-error { background: #fff1f1; border-color: #da1e28; color: #161616; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Loading */
+    .loading {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.875rem; color: #525252; padding: 2rem;
+    }
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid #e0e0e0;
+      border-top-color: #0f62fe; border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center; padding: 3rem; color: #525252; font-size: 0.875rem;
+    }
+
+    /* Confirm dialog */
+    .confirm-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 250;
+      justify-content: center; align-items: center;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: #fff; padding: 1.5rem; width: 400px; max-width: 90vw;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    }
+    .confirm-box p { margin: 0 0 1.5rem; font-size: 0.875rem; }
+    .confirm-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<header class="admin-header">
+  <h1>Beheer</h1>
+</header>
+
+<div class="admin-layout">
+  <nav class="admin-sidenav">
+    <ul id="navList"></ul>
+  </nav>
+  <main class="admin-content" id="mainContent"></main>
+</div>
+
+<!-- Form Modal -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+      <button class="btn btn-primary" id="modalSubmit">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-overlay" id="confirmDialog">
+  <div class="confirm-box">
+    <p id="confirmMessage">Weet je zeker dat je dit item wilt verwijderen?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Annuleren</button>
+      <button class="btn btn-danger" id="confirmYes">Verwijderen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = 'http://localhost:8080/api/v1';
+
+// ── Entity Definitions ──────────────────────────────────────────────
+const entities = {
+  teams: {
+    label: 'Teams',
+    columns: [
+      { key: 'id', label: 'ID' },
+      { key: 'name', label: 'Naam' },
+    ],
+    fields: [
+      { key: 'name', label: 'Naam', type: 'text', required: true },
+    ],
+  },
+  coaches: {
+    label: 'Coaches',
+    columns: [
+      { key: 'id', label: 'ID' },
+      { key: 'fullName', label: 'Naam' },
+      { key: 'team.name', label: 'Team' },
+    ],
+    fields: [
+      { key: 'fullName', label: 'Naam', type: 'text', required: true },
+      { key: 'teamId', label: 'Team', type: 'ref', ref: 'teams', refLabel: 'name', required: true },
+    ],
+  },
+  inwoners: {
+    label: 'Inwoners',
+    columns: [
+      { key: 'id', label: 'ID' },
+      { key: 'fullName', label: 'Naam' },
+      { key: 'birthdate', label: 'Geboortedatum' },
+      { key: 'administratienummer', label: 'Administratienummer' },
+    ],
+    fields: [
+      { key: 'fullName', label: 'Naam', type: 'text', required: true },
+      { key: 'birthdate', label: 'Geboortedatum', type: 'date', required: true },
+      { key: 'administratienummer', label: 'Administratienummer', type: 'text', required: true },
+    ],
+  },
+  plaatsingen: {
+    label: 'Plaatsingen',
+    columns: [
+      { key: 'id', label: 'ID' },
+      { key: 'inwoner.fullName', label: 'Inwoner' },
+      { key: 'coach.fullName', label: 'Coach' },
+      { key: 'team.name', label: 'Team' },
+      { key: 'startDate', label: 'Startdatum' },
+      { key: 'type', label: 'Type' },
+    ],
+    fields: [
+      { key: 'inwonerById', label: 'Inwoner', type: 'ref', ref: 'inwoners', refLabel: 'fullName', required: true },
+      { key: 'coachId', label: 'Coach', type: 'ref', ref: 'coaches', refLabel: 'fullName', required: true },
+      { key: 'teamId', label: 'Team', type: 'ref', ref: 'teams', refLabel: 'name', required: true },
+      { key: 'startDate', label: 'Startdatum', type: 'date', required: true },
+      { key: 'type', label: 'Type', type: 'select', required: true, options: [
+        'Werk', 'Scholing', 'Ondernemen', 'Beschut werk', 'WSW',
+        'Banenafspraak regulier', 'Banenafspraak praktijk route',
+      ]},
+    ],
+  },
+  contactmomenten: {
+    label: 'Contactmomenten',
+    columns: [
+      { key: 'id', label: 'ID' },
+      { key: 'inwoner.fullName', label: 'Inwoner' },
+      { key: 'coach.fullName', label: 'Coach' },
+      { key: 'team.name', label: 'Team' },
+      { key: 'date', label: 'Datum' },
+      { key: 'kanaal', label: 'Kanaal' },
+      { key: 'onderwerp', label: 'Onderwerp' },
+    ],
+    fields: [
+      { key: 'inwonerById', label: 'Inwoner', type: 'ref', ref: 'inwoners', refLabel: 'fullName', required: true },
+      { key: 'coachId', label: 'Coach', type: 'ref', ref: 'coaches', refLabel: 'fullName', required: true },
+      { key: 'teamId', label: 'Team', type: 'ref', ref: 'teams', refLabel: 'name', required: true },
+      { key: 'date', label: 'Datum', type: 'date', required: true },
+      { key: 'kanaal', label: 'Kanaal', type: 'select', required: true, options: [
+        'Telefonisch (inkomend)', 'Telefonisch (uitgaand)', 'Fysiek', 'Videobellen',
+        'E-mail inkomend', 'E-mail uitgaand', 'Post inkomend', 'Post uitgaand',
+        'Zaaksysteem', 'Intern overleg', 'Overleg collega', 'Anders',
+      ]},
+      { key: 'onderwerp', label: 'Onderwerp', type: 'select', required: true, options: [
+        'Voortgangsgesprek', 'Participatiegesprek', 'Leerbaarheidstoets afgerond',
+        'Brede Intake', 'Startweek', 'Plaatsing', 'Loonwaardemeting', 'Praktijkroute',
+        'Beschut Werk', 'CV', 'Talentscan', 'Rapportage', 'Aanbod', 'Kinderopvang',
+        'Medisch advies',
+      ]},
+    ],
+  },
+  aanbod: {
+    label: 'Aanbod',
+    columns: [
+      { key: 'id', label: 'ID' },
+      { key: 'inwoner.fullName', label: 'Inwoner' },
+      { key: 'coach.fullName', label: 'Coach' },
+      { key: 'team.name', label: 'Team' },
+      { key: 'startDate', label: 'Startdatum' },
+      { key: 'aanbodnaam', label: 'Aanbodnaam' },
+      { key: 'afsluitreden', label: 'Afsluitreden' },
+    ],
+    fields: [
+      { key: 'inwonerById', label: 'Inwoner', type: 'ref', ref: 'inwoners', refLabel: 'fullName', required: true },
+      { key: 'coachId', label: 'Coach', type: 'ref', ref: 'coaches', refLabel: 'fullName', required: true },
+      { key: 'teamId', label: 'Team', type: 'ref', ref: 'teams', refLabel: 'name', required: true },
+      { key: 'startDate', label: 'Startdatum', type: 'date', required: true },
+      { key: 'aanbodnaam', label: 'Aanbodnaam', type: 'select', required: true, options: [
+        'Taalcoaching', 'Werkfit traject', 'Participatieplaats', 'Oriëntatie op werk',
+        'Digitale vaardigheden', 'Duale inburgering', 'Entree opleiding',
+        'Kort beroepsonderwijs', 'Sociale activering', 'Vrijwilligerswerk',
+        'Jobcoaching', 'Sollicitatietraining', 'Budgetcoaching', 'MAP-training',
+        'Ondernemerschapstraject',
+      ]},
+      { key: 'afsluitreden', label: 'Afsluitreden', type: 'select', required: false, options: [
+        '', 'Succesvol afgerond', 'Voortijdig gestopt', 'Administratief afgesloten',
+        'Niet verschenen', 'Aanbod afgesloten wegens wijzigen leerroute',
+        'Doorstroom naar ander aanbod', 'Medische redenen',
+      ]},
+    ],
+  },
+};
+
+let currentEntity = 'teams';
+let currentData = [];
+
+// ── Helpers ─────────────────────────────────────────────────────────
+function resolve(obj, path) {
+  return path.split('.').reduce((o, k) => (o && o[k] != null ? o[k] : ''), obj);
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(`${API}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`${res.status} ${res.statusText}${text ? ': ' + text : ''}`);
+  }
+  if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+  return res.json();
+}
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.remove(); }, 3500);
+}
+
+// ── Navigation ──────────────────────────────────────────────────────
+function buildNav() {
+  const ul = document.getElementById('navList');
+  ul.innerHTML = '';
+  for (const [key, def] of Object.entries(entities)) {
+    const li = document.createElement('li');
+    li.textContent = def.label;
+    li.className = key === currentEntity ? 'active' : '';
+    li.addEventListener('click', () => {
+      currentEntity = key;
+      buildNav();
+      loadEntity();
+    });
+    ul.appendChild(li);
+  }
+}
+
+// ── Table Rendering ─────────────────────────────────────────────────
+function renderTable() {
+  const def = entities[currentEntity];
+  const main = document.getElementById('mainContent');
+
+  let html = `<div class="content-header">
+    <h2>${def.label}</h2>
+    <button class="btn btn-primary" onclick="openCreateForm()">+ Nieuw</button>
+  </div>`;
+
+  if (currentData === null) {
+    html += '<div class="loading"><div class="spinner"></div>Laden...</div>';
+    main.innerHTML = html;
+    return;
+  }
+
+  if (currentData.length === 0) {
+    html += '<div class="empty-state">Geen gegevens gevonden.</div>';
+    main.innerHTML = html;
+    return;
+  }
+
+  html += '<div class="bx--data-table-container"><table class="bx--data-table"><thead><tr>';
+  for (const col of def.columns) {
+    html += `<th>${col.label}</th>`;
+  }
+  html += '<th>Acties</th></tr></thead><tbody>';
+
+  for (const row of currentData) {
+    html += '<tr>';
+    for (const col of def.columns) {
+      html += `<td>${escapeHtml(String(resolve(row, col.key)))}</td>`;
+    }
+    html += `<td class="action-btns">
+      <button class="btn btn-ghost" onclick="openEditForm(${row.id})">Bewerken</button>
+      <button class="btn btn-danger" onclick="confirmDelete(${row.id})">Verwijderen</button>
+    </td></tr>`;
+  }
+
+  html += '</tbody></table></div>';
+  main.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ── Data Loading ────────────────────────────────────────────────────
+async function loadEntity() {
+  currentData = null;
+  renderTable();
+  try {
+    currentData = await apiFetch(`/${currentEntity}`);
+    renderTable();
+  } catch (e) {
+    currentData = [];
+    renderTable();
+    showToast(`Fout bij laden: ${e.message}`, 'error');
+  }
+}
+
+// ── Modal ───────────────────────────────────────────────────────────
+function openModal() { document.getElementById('formModal').classList.add('open'); }
+function closeModal() { document.getElementById('formModal').classList.remove('open'); }
+
+// ── Confirm ─────────────────────────────────────────────────────────
+let pendingDeleteId = null;
+function closeConfirm() {
+  document.getElementById('confirmDialog').classList.remove('open');
+  pendingDeleteId = null;
+}
+function confirmDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('confirmDialog').classList.add('open');
+}
+document.getElementById('confirmYes').addEventListener('click', async () => {
+  if (pendingDeleteId == null) return;
+  const id = pendingDeleteId;
+  closeConfirm();
+  try {
+    await apiFetch(`/${currentEntity}/${id}`, { method: 'DELETE' });
+    showToast('Item verwijderd.');
+    loadEntity();
+  } catch (e) {
+    showToast(`Fout bij verwijderen: ${e.message}`, 'error');
+  }
+});
+
+// ── Form Building ───────────────────────────────────────────────────
+async function buildForm(editItem) {
+  const def = entities[currentEntity];
+  const body = document.getElementById('modalBody');
+  body.innerHTML = '<div class="loading"><div class="spinner"></div>Laden...</div>';
+
+  // Load reference data for dropdowns
+  const refData = {};
+  const refFields = def.fields.filter(f => f.type === 'ref');
+  await Promise.all(refFields.map(async f => {
+    try {
+      refData[f.ref] = await apiFetch(`/${f.ref}`);
+    } catch {
+      refData[f.ref] = [];
+    }
+  }));
+
+  let html = '';
+  for (const field of def.fields) {
+    html += `<div class="form-group"><label for="field-${field.key}">${field.label}${field.required ? ' *' : ''}</label>`;
+
+    if (field.type === 'text') {
+      const val = editItem ? escapeHtml(String(editItem[field.key] || '')) : '';
+      html += `<input type="text" id="field-${field.key}" value="${val}" ${field.required ? 'required' : ''} />`;
+    } else if (field.type === 'date') {
+      const val = editItem ? (editItem[field.key] || '') : '';
+      html += `<input type="date" id="field-${field.key}" value="${val}" ${field.required ? 'required' : ''} />`;
+    } else if (field.type === 'select') {
+      let currentVal = editItem ? (editItem[field.key] || '') : '';
+      html += `<select id="field-${field.key}" ${field.required ? 'required' : ''}>`;
+      if (!field.required || !currentVal) html += '<option value="">-- Selecteer --</option>';
+      for (const opt of field.options) {
+        if (opt === '' && field.required) continue;
+        const sel = opt === currentVal ? 'selected' : '';
+        html += `<option value="${escapeHtml(opt)}" ${sel}>${escapeHtml(opt || '(leeg)')}</option>`;
+      }
+      html += '</select>';
+    } else if (field.type === 'ref') {
+      // Determine current value: for edit, we need the id from the nested object or directly
+      let currentVal = '';
+      if (editItem) {
+        if (field.key === 'inwonerById' && editItem.inwoner) {
+          currentVal = editItem.inwoner.id;
+        } else if (field.key === 'coachId' && editItem.coach) {
+          currentVal = editItem.coach.id;
+        } else if (field.key === 'teamId' && editItem.team) {
+          currentVal = editItem.team.id;
+        } else {
+          currentVal = editItem[field.key] || '';
+        }
+      }
+      const items = refData[field.ref] || [];
+      html += `<select id="field-${field.key}" ${field.required ? 'required' : ''}>`;
+      html += '<option value="">-- Selecteer --</option>';
+      for (const item of items) {
+        const sel = String(item.id) === String(currentVal) ? 'selected' : '';
+        html += `<option value="${item.id}" ${sel}>${escapeHtml(String(item[field.refLabel] || item.id))}</option>`;
+      }
+      html += '</select>';
+    }
+
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+}
+
+function collectFormData() {
+  const def = entities[currentEntity];
+  const data = {};
+  for (const field of def.fields) {
+    const el = document.getElementById(`field-${field.key}`);
+    if (!el) continue;
+    let val = el.value;
+    if (field.type === 'ref') {
+      data[field.key] = val ? parseInt(val, 10) : null;
+    } else {
+      data[field.key] = val || null;
+    }
+  }
+  return data;
+}
+
+// ── Create ──────────────────────────────────────────────────────────
+async function openCreateForm() {
+  const def = entities[currentEntity];
+  document.getElementById('modalTitle').textContent = `${def.label} aanmaken`;
+  openModal();
+  await buildForm(null);
+
+  const btn = document.getElementById('modalSubmit');
+  btn.onclick = async () => {
+    const data = collectFormData();
+    try {
+      await apiFetch(`/${currentEntity}`, { method: 'POST', body: JSON.stringify(data) });
+      closeModal();
+      showToast('Item aangemaakt.');
+      loadEntity();
+    } catch (e) {
+      showToast(`Fout bij aanmaken: ${e.message}`, 'error');
+    }
+  };
+}
+
+// ── Edit ────────────────────────────────────────────────────────────
+async function openEditForm(id) {
+  const def = entities[currentEntity];
+  document.getElementById('modalTitle').textContent = `${def.label} bewerken`;
+  openModal();
+
+  let item;
+  try {
+    item = await apiFetch(`/${currentEntity}/${id}`);
+  } catch (e) {
+    showToast(`Fout bij ophalen: ${e.message}`, 'error');
+    closeModal();
+    return;
+  }
+
+  await buildForm(item);
+
+  const btn = document.getElementById('modalSubmit');
+  btn.onclick = async () => {
+    const data = collectFormData();
+    try {
+      await apiFetch(`/${currentEntity}/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+      closeModal();
+      showToast('Item bijgewerkt.');
+      loadEntity();
+    } catch (e) {
+      showToast(`Fout bij bijwerken: ${e.message}`, 'error');
+    }
+  };
+}
+
+// ── Close modal on overlay click ────────────────────────────────────
+document.getElementById('formModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('confirmDialog').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeConfirm();
+});
+
+// ── Init ────────────────────────────────────────────────────────────
+buildNav();
+loadEntity();
+</script>
+</body>
+</html>

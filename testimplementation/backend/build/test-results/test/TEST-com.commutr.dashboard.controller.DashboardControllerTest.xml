@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.commutr.dashboard.controller.DashboardControllerTest" tests="0" skipped="0" failures="0" errors="0" timestamp="1970-01-01T00:00:00" hostname="RITENSE-176.local" time="0.0">
+  <properties/>
+  <system-out><![CDATA[2026-04-08T15:26:04.532+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.controller.DashboardControllerTest]: DashboardControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T15:26:04.533+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.controller.DashboardControllerTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

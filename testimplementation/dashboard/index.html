@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/carbon-components@10.58.0/css/carbon-components.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+      background: #f4f4f4;
+      color: #161616;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #161616;
+      color: #fff;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      overflow-x: auto;
+    }
+    .tab-bar button {
+      font-family: inherit;
+      font-size: 0.875rem;
+      padding: 0.75rem 1rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #525252;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-bar button:hover { color: #161616; }
+    .tab-bar button.active {
+      color: #161616;
+      font-weight: 600;
+      border-bottom-color: #0f62fe;
+    }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      background: #fff;
+      padding: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 160px;
+    }
+    .filter-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #525252;
+      letter-spacing: 0.32px;
+    }
+    .filter-group select {
+      font-family: inherit;
+      font-size: 0.875rem;
+      padding: 0 2.5rem 0 1rem;
+      height: 2.5rem;
+      border: none;
+      border-bottom: 1px solid #8d8d8d;
+      background: #f4f4f4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z' fill='%23161616'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+      background-size: 16px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      color: #161616;
+    }
+    .filter-group select:focus {
+      outline: 2px solid #0f62fe;
+      outline-offset: -2px;
+    }
+
+    /* ── Content area ── */
+    .content { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* ── Summary cards ── */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-card {
+      background: #fff;
+      padding: 1rem 1.25rem;
+      border-top: 3px solid #0f62fe;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .summary-card .card-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #525252;
+      letter-spacing: 0.32px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .summary-card .card-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #161616;
+      line-height: 1.2;
+    }
+    .summary-card .card-sub {
+      font-size: 0.75rem;
+      color: #6f6f6f;
+      margin-top: 0.25rem;
+    }
+
+    /* ── Chart ── */
+    .chart-container {
+      background: #fff;
+      padding: 1.5rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .chart-container canvas { width: 100% !important; max-height: 400px; }
+    .chart-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6f6f6f;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Detail table ── */
+    .detail-section { margin-top: 1rem; margin-bottom: 2rem; }
+    .detail-section h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .detail-table-wrap { overflow-x: auto; }
+    table.detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+    table.detail-table thead th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.16px;
+      color: #161616;
+      background: #e0e0e0;
+      border-bottom: 1px solid #c6c6c6;
+      white-space: nowrap;
+    }
+    table.detail-table tbody tr { border-bottom: 1px solid #e0e0e0; }
+    table.detail-table tbody tr:nth-child(even) { background: #f4f4f4; }
+    table.detail-table tbody td {
+      padding: 0.75rem 1rem;
+      color: #161616;
+      white-space: nowrap;
+    }
+
+    /* ── Spinner ── */
+    .spinner-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .spinner-overlay.hidden { display: none; }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #0f62fe;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Error banner ── */
+    .error-banner {
+      background: #fff1f1;
+      border-left: 3px solid #da1e28;
+      padding: 1rem 1.25rem;
+      margin: 1rem;
+      font-size: 0.875rem;
+      color: #161616;
+    }
+    .error-banner.hidden { display: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 672px) {
+      .summary-cards { grid-template-columns: 1fr; }
+      .filter-bar { flex-direction: column; }
+      .filter-group { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">Dashboard</header>
+
+  <nav class="tab-bar" id="tabBar"></nav>
+
+  <div class="filter-bar" id="filterBar"></div>
+
+  <div class="error-banner hidden" id="errorBanner"></div>
+
+  <div class="spinner-overlay hidden" id="spinner">
+    <div class="spinner"></div>
+  </div>
+
+  <main class="content">
+    <section class="summary-cards" id="summaryCards"></section>
+
+    <section class="chart-container">
+      <canvas id="mainChart"></canvas>
+    </section>
+    <p class="chart-hint">Klik op een staaf om details te zien</p>
+
+    <section class="detail-section hidden" id="detailSection">
+      <h3 id="detailTitle"></h3>
+      <div class="detail-table-wrap">
+        <table class="detail-table" id="detailTable">
+          <thead id="detailHead"></thead>
+          <tbody id="detailBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+<script>
+(function () {
+  'use strict';
+
+  const API_BASE = 'http://localhost:8080/api/v1';
+
+  // ── State ──
+  let dashboards = [];
+  let activeDashboardId = null;
+  let config = null;
+  let chartInstance = null;
+  let chartData = null;
+  let loadingCount = 0;
+
+  // ── DOM refs ──
+  const tabBar = document.getElementById('tabBar');
+  const filterBar = document.getElementById('filterBar');
+  const summaryCards = document.getElementById('summaryCards');
+  const mainCanvas = document.getElementById('mainChart');
+  const detailSection = document.getElementById('detailSection');
+  const detailTitle = document.getElementById('detailTitle');
+  const detailHead = document.getElementById('detailHead');
+  const detailBody = document.getElementById('detailBody');
+  const spinnerEl = document.getElementById('spinner');
+  const errorBanner = document.getElementById('errorBanner');
+
+  // ── Helpers ──
+  function showSpinner() {
+    loadingCount++;
+    spinnerEl.classList.remove('hidden');
+  }
+  function hideSpinner() {
+    loadingCount = Math.max(0, loadingCount - 1);
+    if (loadingCount === 0) spinnerEl.classList.add('hidden');
+  }
+  function showError(msg) {
+    errorBanner.textContent = msg;
+    errorBanner.classList.remove('hidden');
+  }
+  function clearError() {
+    errorBanner.classList.add('hidden');
+    errorBanner.textContent = '';
+  }
+
+  async function apiFetch(path) {
+    const res = await fetch(API_BASE + path);
+    if (!res.ok) throw new Error('API error: ' + res.status + ' ' + res.statusText);
+    return res.json();
+  }
+
+  function buildQueryString(params) {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== '' && v != null) qs.append(k, v);
+    }
+    const s = qs.toString();
+    return s ? '?' + s : '';
+  }
+
+  function getFilterValues() {
+    if (!config || !config.filters) return {};
+    const values = {};
+    config.filters.forEach(function (f) {
+      const sel = document.getElementById('filter-' + f.key);
+      if (sel) values[f.key] = sel.value;
+    });
+    return values;
+  }
+
+  // ── 1. Load dashboards ──
+  async function init() {
+    showSpinner();
+    clearError();
+    try {
+      dashboards = await apiFetch('/dashboards');
+      renderTabs();
+      if (dashboards.length > 0) {
+        selectDashboard(dashboards[0].id);
+      }
+    } catch (e) {
+      showError('Kan dashboards niet laden. Controleer of de API bereikbaar is op ' + API_BASE);
+      console.error(e);
+    } finally {
+      hideSpinner();
+    }
+  }
+
+  // ── Tabs ──
+  function renderTabs() {
+    tabBar.innerHTML = '';
+    dashboards.forEach(function (d) {
+      var btn = document.createElement('button');
+      btn.textContent = d.label;
+      btn.dataset.id = d.id;
+      btn.addEventListener('click', function () { selectDashboard(d.id); });
+      tabBar.appendChild(btn);
+    });
+  }
+
+  function updateActiveTab() {
+    Array.from(tabBar.children).forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.id === activeDashboardId);
+    });
+  }
+
+  // ── 2. Select dashboard ──
+  async function selectDashboard(id) {
+    activeDashboardId = id;
+    updateActiveTab();
+    hideDetail();
+    clearError();
+    showSpinner();
+    try {
+      config = await apiFetch('/dashboards/' + id + '/config');
+      renderFilters();
+      renderSummaryPlaceholders();
+      await loadData();
+    } catch (e) {
+      showError('Kan dashboardconfiguratie niet laden.');
+      console.error(e);
+    } finally {
+      hideSpinner();
+    }
+  }
+
+  // ── Filters ──
+  function renderFilters() {
+    filterBar.innerHTML = '';
+    if (!config.filters || config.filters.length === 0) return;
+    config.filters.forEach(function (f) {
+      var group = document.createElement('div');
+      group.className = 'filter-group';
+
+      var label = document.createElement('label');
+      label.setAttribute('for', 'filter-' + f.key);
+      label.textContent = f.label;
+
+      var select = document.createElement('select');
+      select.id = 'filter-' + f.key;
+      select.innerHTML = '<option value="">Alle</option>';
+      select.addEventListener('change', onFilterChange);
+
+      group.appendChild(label);
+      group.appendChild(select);
+      filterBar.appendChild(group);
+    });
+  }
+
+  function populateFilterOptions(filterData) {
+    if (!config.filters) return;
+    config.filters.forEach(function (f) {
+      var sel = document.getElementById('filter-' + f.key);
+      if (!sel) return;
+      var options = filterData[f.key] || [];
+      var currentValue = sel.value;
+
+      // Check if current selection is still valid
+      var stillValid = currentValue === '' || options.some(function (o) {
+        return String(o) === currentValue;
+      });
+      if (!stillValid) currentValue = '';
+
+      sel.innerHTML = '<option value="">Alle</option>';
+      options.forEach(function (opt) {
+        var option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+        if (String(opt) === currentValue) option.selected = true;
+        sel.appendChild(option);
+      });
+    });
+  }
+
+  function onFilterChange() {
+    hideDetail();
+    loadData();
+  }
+
+  // ── 3. Load data (filters, summary, chart in parallel) ──
+  async function loadData() {
+    var qs = buildQueryString(getFilterValues());
+    showSpinner();
+    clearError();
+    try {
+      var results = await Promise.all([
+        apiFetch('/dashboards/' + activeDashboardId + '/filters' + qs),
+        apiFetch('/dashboards/' + activeDashboardId + '/summary' + qs),
+        apiFetch('/dashboards/' + activeDashboardId + '/chart' + qs)
+      ]);
+      populateFilterOptions(results[0]);
+      renderSummary(results[1]);
+      renderChart(results[2]);
+    } catch (e) {
+      showError('Kan dashboardgegevens niet laden.');
+      console.error(e);
+    } finally {
+      hideSpinner();
+    }
+  }
+
+  // ── Summary cards ──
+  function renderSummaryPlaceholders() {
+    summaryCards.innerHTML = '';
+    if (!config.summaryCards) return;
+    config.summaryCards.forEach(function (c) {
+      var card = document.createElement('div');
+      card.className = 'summary-card';
+      card.id = 'card-' + c.key;
+      card.innerHTML = '<div class="card-label">' + escapeHtml(c.label) + '</div>' +
+                        '<div class="card-value">-</div>';
+      summaryCards.appendChild(card);
+    });
+  }
+
+  function renderSummary(data) {
+    if (!config.summaryCards) return;
+    config.summaryCards.forEach(function (c) {
+      var card = document.getElementById('card-' + c.key);
+      if (!card) return;
+      var value = data[c.key];
+      var displayValue = '-';
+      var sub = '';
+
+      if (value != null && typeof value === 'object') {
+        // e.g. topMonth: { label, value }
+        displayValue = value.value != null ? value.value : '-';
+        sub = value.label || '';
+      } else if (value != null) {
+        displayValue = value;
+      }
+
+      card.innerHTML = '<div class="card-label">' + escapeHtml(c.label) + '</div>' +
+                        '<div class="card-value">' + escapeHtml(String(displayValue)) + '</div>' +
+                        (sub ? '<div class="card-sub">' + escapeHtml(sub) + '</div>' : '');
+    });
+  }
+
+  // ── Chart ──
+  function renderChart(data) {
+    chartData = data;
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
+
+    var chartType = config.chart.type || 'bar';
+    var isStacked = chartType === 'stacked-bar';
+    var colors = config.chart.colors || ['#0f62fe'];
+
+    var datasets;
+    if (isStacked && data.series && data.series.length > 0) {
+      datasets = data.series.map(function (s, i) {
+        return {
+          label: s.label,
+          data: s.data,
+          backgroundColor: colors[i % colors.length],
+          borderColor: colors[i % colors.length],
+          borderWidth: 1
+        };
+      });
+    } else {
+      // Simple bar: use first series data, or aggregate
+      var barData = data.series && data.series.length > 0 ? data.series[0].data : [];
+      datasets = [{
+        label: data.series && data.series.length > 0 ? data.series[0].label : '',
+        data: barData,
+        backgroundColor: colors[0] || '#0f62fe',
+        borderColor: colors[0] || '#0f62fe',
+        borderWidth: 1
+      }];
+    }
+
+    chartInstance = new Chart(mainCanvas, {
+      type: 'bar',
+      data: {
+        labels: data.labels || [],
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        interaction: {
+          mode: 'point',
+          intersect: true
+        },
+        plugins: {
+          legend: {
+            display: isStacked,
+            position: 'top'
+          }
+        },
+        scales: {
+          x: {
+            stacked: isStacked,
+            title: {
+              display: !!config.chart.xLabel,
+              text: config.chart.xLabel || ''
+            }
+          },
+          y: {
+            stacked: isStacked,
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            },
+            title: {
+              display: !!config.chart.yLabel,
+              text: config.chart.yLabel || ''
+            }
+          }
+        },
+        onClick: onChartClick
+      }
+    });
+  }
+
+  // ── Chart click -> details ──
+  function onChartClick(event, elements) {
+    if (!elements || elements.length === 0) return;
+    var el = elements[0];
+    var dataIndex = el.index;
+    var datasetIndex = el.datasetIndex;
+
+    var monthLabel = chartData.labels[dataIndex];
+    if (!monthLabel) return;
+
+    var params = Object.assign({}, getFilterValues());
+    params.month = monthLabel;
+
+    var chartType = config.chart.type || 'bar';
+    if (chartType === 'stacked-bar' && chartData.series && chartData.series[datasetIndex]) {
+      params.category = chartData.series[datasetIndex].label;
+    }
+
+    loadDetails(params);
+  }
+
+  // ── Detail table ──
+  async function loadDetails(params) {
+    showSpinner();
+    clearError();
+    try {
+      var qs = buildQueryString(params);
+      var data = await apiFetch('/dashboards/' + activeDashboardId + '/details' + qs);
+      renderDetail(data);
+    } catch (e) {
+      showError('Kan details niet laden.');
+      console.error(e);
+    } finally {
+      hideSpinner();
+    }
+  }
+
+  function renderDetail(data) {
+    detailTitle.textContent = data.title || 'Details';
+    detailHead.innerHTML = '';
+    detailBody.innerHTML = '';
+
+    var columns = (config.detailTable && config.detailTable.columns) || [];
+    if (columns.length === 0 && data.rows && data.rows.length > 0) {
+      // Fallback: derive columns from first row
+      columns = Object.keys(data.rows[0]).map(function (k) {
+        return { key: k, label: k };
+      });
+    }
+
+    // Header
+    var headerRow = document.createElement('tr');
+    columns.forEach(function (col) {
+      var th = document.createElement('th');
+      th.textContent = col.label;
+      headerRow.appendChild(th);
+    });
+    detailHead.appendChild(headerRow);
+
+    // Body
+    (data.rows || []).forEach(function (row) {
+      var tr = document.createElement('tr');
+      columns.forEach(function (col) {
+        var td = document.createElement('td');
+        td.textContent = row[col.key] != null ? row[col.key] : '';
+        tr.appendChild(td);
+      });
+      detailBody.appendChild(tr);
+    });
+
+    detailSection.classList.remove('hidden');
+    detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function hideDetail() {
+    detailSection.classList.add('hidden');
+    detailHead.innerHTML = '';
+    detailBody.innerHTML = '';
+  }
+
+  // ── Util ──
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  // ── Start ──
+  init();
+})();
+</script>
+</body>
+</html>

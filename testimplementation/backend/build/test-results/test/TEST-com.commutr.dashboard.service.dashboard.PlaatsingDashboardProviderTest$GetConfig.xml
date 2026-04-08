@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetConfig" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.006">
+  <properties/>
+  <testcase name="returns correct filter keys()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetConfig" time="0.002"/>
+  <testcase name="chart type is bar()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetConfig" time="0.002"/>
+  <testcase name="detail table has correct columns()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetConfig" time="0.002"/>
+  <system-out><![CDATA[2026-04-08T15:26:05.435+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetConfig]: GetConfig does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T15:26:05.437+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetConfig
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

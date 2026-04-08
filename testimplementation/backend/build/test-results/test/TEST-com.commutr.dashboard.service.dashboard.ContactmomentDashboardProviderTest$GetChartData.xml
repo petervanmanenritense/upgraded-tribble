@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetChartData" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.005">
+  <properties/>
+  <testcase name="groups by month correctly()" classname="com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetChartData" time="0.005"/>
+  <system-out><![CDATA[2026-04-08T15:26:05.174+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetChartData]: GetChartData does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T15:26:05.176+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.ContactmomentDashboardProviderTest$GetChartData
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into contactmomenten (coach_id,date,inwoner_id,kanaal,onderwerp,team_id,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into contactmomenten (coach_id,date,inwoner_id,kanaal,onderwerp,team_id,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into contactmomenten (coach_id,date,inwoner_id,kanaal,onderwerp,team_id,id) values (?,?,?,?,?,?,default)
+Hibernate: select c1_0.id,c1_0.coach_id,c1_0.date,c1_0.inwoner_id,c1_0.kanaal,c1_0.onderwerp,c1_0.team_id from contactmomenten c1_0 where 1=1
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

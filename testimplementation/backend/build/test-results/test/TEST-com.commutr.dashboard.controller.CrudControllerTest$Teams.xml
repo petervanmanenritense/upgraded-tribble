@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.commutr.dashboard.controller.CrudControllerTest$Teams" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:04" hostname="RITENSE-176.local" time="0.036">
+  <properties/>
+  <testcase name="DELETE removes team()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.008"/>
+  <testcase name="GET nonexistent team returns 404()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.004"/>
+  <testcase name="GET all teams()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.005"/>
+  <testcase name="PUT updates team()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.006"/>
+  <testcase name="DELETE nonexistent team returns 404()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.004"/>
+  <testcase name="GET team by id()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.003"/>
+  <testcase name="POST creates team()" classname="com.commutr.dashboard.controller.CrudControllerTest$Teams" time="0.005"/>
+  <system-out><![CDATA[2026-04-08T15:26:04.493+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.controller.CrudControllerTest$Teams]: Teams does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T15:26:04.494+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.controller.CrudControllerTest$Teams
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

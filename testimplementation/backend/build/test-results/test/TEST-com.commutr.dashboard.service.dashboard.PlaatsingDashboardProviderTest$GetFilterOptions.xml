@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-08T13:26:05" hostname="RITENSE-176.local" time="0.02">
+  <properties/>
+  <testcase name="cascading - team filter narrows other options()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.005"/>
+  <testcase name="cascading - year filter does not apply to year options()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.005"/>
+  <testcase name="returns all distinct teams()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.004"/>
+  <testcase name="returns all distinct years()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions" time="0.004"/>
+  <system-out><![CDATA[2026-04-08T15:26:05.457+02:00  INFO 68739 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions]: GetFilterOptions does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-04-08T15:26:05.459+02:00  INFO 68739 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetFilterOptions
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 join teams t1_0 on t1_0.id=p1_0.team_id where t1_0.name=?
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 join teams t1_0 on t1_0.id=p1_0.team_id where t1_0.name=?
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 join teams t1_0 on t1_0.id=p1_0.team_id where t1_0.name=?
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where p1_0.start_date between ? and ?
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where p1_0.start_date between ? and ?
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where p1_0.start_date between ? and ?
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
