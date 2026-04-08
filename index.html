@@ -404,10 +404,30 @@ function createDashboard(config) {
       if (!map[key]) map[key] = [];
       map[key].push(item);
     });
-    return Object.keys(map).sort().map(k => {
-      const [y, m] = k.split('-');
-      return { key: k, label: `${monthNames[parseInt(m)-1]} ${y}`, items: map[k] };
+    // Find full range from all data (not just filtered) to always show all months
+    let minY = Infinity, maxY = -Infinity, minM = 12, maxM = 1;
+    config.data.forEach(item => {
+      const y = item.date.getFullYear(), m = item.date.getMonth() + 1;
+      if (y < minY || (y === minY && m < minM)) { minY = y; minM = m; }
+      if (y > maxY || (y === maxY && m > maxM)) { maxY = y; maxM = m; }
     });
+    // If year filter is active, limit range to that year
+    const yearFilter = getFilterValues().year;
+    if (yearFilter) {
+      const fy = parseInt(yearFilter);
+      minY = fy; minM = 1;
+      maxY = fy; maxM = 12;
+    }
+    const buckets = [];
+    for (let y = minY; y <= maxY; y++) {
+      const startM = (y === minY) ? minM : 1;
+      const endM = (y === maxY) ? maxM : 12;
+      for (let m = startM; m <= endM; m++) {
+        const key = `${y}-${pad(m)}`;
+        buckets.push({ key, label: `${monthNames[m-1]} ${y}`, items: map[key] || [] });
+      }
+    }
+    return buckets;
   }
 
   function update() {
@@ -610,7 +630,7 @@ const abDashboard = (function() {
     updateFilterOptions(filterVals);
     const filtered = applyFilters(aanbodData, getFilterValues());
 
-    // Build month buckets
+    // Build month buckets with all months in range
     const monthMap = {};
     filtered.forEach(item => {
       const d = item.date;
@@ -618,11 +638,27 @@ const abDashboard = (function() {
       if (!monthMap[key]) monthMap[key] = [];
       monthMap[key].push(item);
     });
-    const monthKeys = Object.keys(monthMap).sort();
-    currentBuckets = monthKeys.map(k => {
-      const [y, m] = k.split('-');
-      return { key: k, label: `${monthNames[parseInt(m)-1]} ${y}`, items: monthMap[k] };
+    let minY = Infinity, maxY = -Infinity, minM = 12, maxM = 1;
+    aanbodData.forEach(item => {
+      const y = item.date.getFullYear(), m = item.date.getMonth() + 1;
+      if (y < minY || (y === minY && m < minM)) { minY = y; minM = m; }
+      if (y > maxY || (y === maxY && m > maxM)) { maxY = y; maxM = m; }
     });
+    const yearFilter = getFilterValues().year;
+    if (yearFilter) {
+      const fy = parseInt(yearFilter);
+      minY = fy; minM = 1;
+      maxY = fy; maxM = 12;
+    }
+    currentBuckets = [];
+    for (let y = minY; y <= maxY; y++) {
+      const startM = (y === minY) ? minM : 1;
+      const endM = (y === maxY) ? maxM : 12;
+      for (let m = startM; m <= endM; m++) {
+        const key = `${y}-${pad(m)}`;
+        currentBuckets.push({ key, label: `${monthNames[m-1]} ${y}`, items: monthMap[key] || [] });
+      }
+    }
 
     // Summary
     const total = filtered.length;
