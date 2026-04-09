@@ -588,7 +588,9 @@
     if (!monthLabel) return;
 
     var params = Object.assign({}, getFilterValues());
-    params.month = monthLabel;
+    var monthNames = {'Jan':'01','Feb':'02','Mrt':'03','Apr':'04','Mei':'05','Jun':'06','Jul':'07','Aug':'08','Sep':'09','Okt':'10','Nov':'11','Dec':'12'};
+    var parts = monthLabel.split(' ');
+    params.month = parts[1] + '-' + (monthNames[parts[0]] || '01');
 
     var chartType = config.chart.type || 'bar';
     if (chartType === 'stacked-bar' && chartData.series && chartData.series[datasetIndex]) {
