@@ -315,8 +315,8 @@ const typesBySoort = {
   'Werk': ['Plaatsing betaald werk + opleiding', 'Plaatsing betaald werk < 12 uur', 'Plaatsing betaald werk > 24 uur'],
   'WSW': ['Plaatsing WSW voltijd', 'Plaatsing WSW deeltijd']
 };
-const zaakstatussen = ['Lopend', 'Afgerond', 'Geannuleerd'];
-const plaatsingAfsluitredenen = ['Succesvol afgerond', 'Voortijdig gestopt', 'Administratief afgesloten', 'Doorverwezen', 'Niet verschenen'];
+const zaakstatussen = ['Ontvangen', 'In behandeling', 'Afgehandeld'];
+const plaatsingAfsluitredenen = ['Uitgestroomd', 'Bijstand afgewezen', 'Overlijden/verhuizen', 'Doorstromen', 'Aanvraag ingetrokken'];
 
 function generatePlaatsingen() {
   const data = [];
@@ -331,7 +331,7 @@ function generatePlaatsingen() {
         const types = typesBySoort[soort];
         const type = types ? rand(types) : null;
         const zaakstatus = rand(zaakstatussen);
-        const afsluitreden = zaakstatus === 'Afgerond' ? rand(plaatsingAfsluitredenen) : null;
+        const afsluitreden = zaakstatus === 'Afgehandeld' ? rand(plaatsingAfsluitredenen) : null;
         data.push({
           coach: rand(coachesByTeam[team]),
           team,
@@ -618,7 +618,7 @@ const plDashboard = createDashboard({
     <td>${p.soort}</td>
     <td>${p.type || ''}</td>
     <td>${p.zaakstatus}</td>
-    <td>${p.zaakstatus === 'Afgerond' && p.afsluitreden ? p.afsluitreden : ''}</td>`
+    <td>${p.zaakstatus === 'Afgehandeld' && p.afsluitreden ? p.afsluitreden : ''}</td>`
 });
 
 // --- Contactmomenten dashboard ---
