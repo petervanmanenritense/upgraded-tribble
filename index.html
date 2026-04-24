@@ -111,6 +111,10 @@
       <select id="pl-filterCoach"><option value="">Alle coaches</option></select>
     </div>
     <div class="filter-group">
+      <label for="pl-filterSoort">Soort</label>
+      <select id="pl-filterSoort"><option value="">Alle soorten</option></select>
+    </div>
+    <div class="filter-group">
       <label for="pl-filterType">Type</label>
       <select id="pl-filterType"><option value="">Alle typen</option></select>
     </div>
@@ -130,7 +134,7 @@
       <h2 id="pl-detailTitle">Details</h2>
       <table>
         <thead><tr>
-          <th>Datum</th><th>Inwoner</th><th>Administratienr.</th><th>Geboortedatum</th><th>Coach</th><th>Team</th><th>Type</th>
+          <th>Datum</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Soort</th><th>Type</th><th>Zaakstatus</th><th>Afsluitreden</th>
         </tr></thead>
         <tbody id="pl-detailBody"></tbody>
       </table>
@@ -141,6 +145,10 @@
 <!-- CONTACTMOMENTEN VIEW -->
 <div class="view" id="view-contactmomenten">
   <div class="filters">
+    <div class="filter-group">
+      <label for="cm-filterTypeDienstverlening">Type dienstverlening</label>
+      <select id="cm-filterTypeDienstverlening"><option value="">Alle typen</option></select>
+    </div>
     <div class="filter-group">
       <label for="cm-filterYear">Jaar</label>
       <select id="cm-filterYear"><option value="">Alle jaren</option></select>
@@ -189,6 +197,10 @@
 <div class="view" id="view-aanbod">
   <div class="filters">
     <div class="filter-group">
+      <label for="ab-filterTypeDienstverlening">Type dienstverlening</label>
+      <select id="ab-filterTypeDienstverlening"><option value="">Alle typen</option></select>
+    </div>
+    <div class="filter-group">
       <label for="ab-filterYear">Jaar</label>
       <select id="ab-filterYear"><option value="">Alle jaren</option></select>
     </div>
@@ -235,6 +247,10 @@
 <!-- AANBOD RESULTAAT VIEW -->
 <div class="view" id="view-aanbodresultaat">
   <div class="filters">
+    <div class="filter-group">
+      <label for="ar-filterTypeDienstverlening">Type dienstverlening</label>
+      <select id="ar-filterTypeDienstverlening"><option value="">Alle typen</option></select>
+    </div>
     <div class="filter-group">
       <label for="ar-filterYear">Jaar</label>
       <select id="ar-filterYear"><option value="">Alle jaren</option></select>
@@ -294,7 +310,13 @@ function pad(n) { return String(n).padStart(2, '0'); }
 function formatDate(d) { return `${pad(d.getDate())}-${pad(d.getMonth()+1)}-${d.getFullYear()}`; }
 
 // --- Plaatsingen data ---
-const plaatsingTypes = ['Werk', 'Scholing', 'Ondernemen', 'Beschut werk', 'WSW', 'Banenafspraak regulier', 'Banenafspraak praktijk route'];
+const plaatsingSoorten = ['Werk', 'Scholing', 'Ondernemen', 'Beschut werk', 'WSW', 'Banenafspraak regulier', 'Banenafspraak praktijk route'];
+const typesBySoort = {
+  'Werk': ['Plaatsing betaald werk + opleiding', 'Plaatsing betaald werk < 12 uur', 'Plaatsing betaald werk > 24 uur'],
+  'WSW': ['Plaatsing WSW voltijd', 'Plaatsing WSW deeltijd']
+};
+const zaakstatussen = ['Lopend', 'Afgerond', 'Geannuleerd'];
+const plaatsingAfsluitredenen = ['Succesvol afgerond', 'Voortijdig gestopt', 'Administratief afgesloten', 'Doorverwezen', 'Niet verschenen'];
 
 function generatePlaatsingen() {
   const data = [];
@@ -305,11 +327,19 @@ function generatePlaatsingen() {
       const count = randInt(8, 25);
       for (let i = 0; i < count; i++) {
         const team = rand(teamsList);
+        const soort = rand(plaatsingSoorten);
+        const types = typesBySoort[soort];
+        const type = types ? rand(types) : null;
+        const zaakstatus = rand(zaakstatussen);
+        const afsluitreden = zaakstatus === 'Afgerond' ? rand(plaatsingAfsluitredenen) : null;
         data.push({
           coach: rand(coachesByTeam[team]),
           team,
           date: new Date(year, month - 1, randInt(1, 28)),
-          type: rand(plaatsingTypes),
+          soort,
+          type,
+          zaakstatus,
+          afsluitreden,
           inwoner: {
             name: `${rand(firstNames)} ${rand(lastNames)}`,
             birthdate: new Date(randInt(1960, 2002), randInt(0, 11), randInt(1, 28)),
@@ -323,6 +353,7 @@ function generatePlaatsingen() {
 }
 
 // --- Contactmomenten data ---
+const typenDienstverlening = ['Werk', 'Inburgering'];
 const kanalen = ['Telefonisch (inkomend)', 'Telefonisch (uitgaand)', 'Intern overleg', 'Zaaksysteem', 'Post uitgaand', 'Post inkomend', 'E-mail uitgaand', 'E-mail inkomend', 'Telefonisch', 'Overleg collega', 'Anders', 'Videobellen', 'Fysiek'];
 const onderwerpen = ['Voortgangsgesprek', 'Participatiegesprek', 'Leerbaarheidstoets afgerond', 'Leerbaarheidstoets niet aanwezig met afmelding', 'Leerbaarheidstoets niet aanwezig zonder afmelding', 'Leerbaarheidstoets - Uitnodiging', 'Brede Intake', 'Anders', 'CV', 'Niet bereikbaar', 'No show', 'Startweek plus', 'Startweek', 'Zelftest', 'PTO', 'Loonwaardemeting', 'LKS', 'Praktijkroute', 'Beschut Werk', 'Overige', 'Drie gesprek', 'Uitkering', 'Plaatsing', 'Heropenen dossier', 'Plan vervolggesprek - ingepland', 'Plan intakegesprek - ingepland', 'Voer vervolggesprek - niet aanwezig zonder afmelding', 'Voer vervolggesprek - afmelding', 'Plan vervolggesprek - niet bereikbaar', 'Voer intakegesprek - niet aanwezig zonder afmelding', 'Voer intakegesprek - afmelding', 'Plan intakegesprek - niet bereikbaar', 'Partners in de stad', 'Talentscan', 'Rapportage', 'Aanbod', 'Kinderopvang', 'Verbindende Aanpak', 'Medisch advies', 'Uitval', 'Afmelding', 'Terugmelding'];
 
@@ -338,6 +369,7 @@ function generateContactmomenten() {
           coach: rand(coachesByTeam[team]),
           team,
           date: new Date(year, month - 1, randInt(1, 28)),
+          typeDienstverlening: rand(typenDienstverlening),
           kanaal: rand(kanalen),
           onderwerp: rand(onderwerpen),
           inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
@@ -369,6 +401,7 @@ function generateAanbod() {
           coach: rand(coachesByTeam[team]),
           team,
           date: startDt,
+          typeDienstverlening: rand(typenDienstverlening),
           aanbodnaam: rand(aanbodnamen),
           inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
           administratienummer: String(randInt(1000000, 9999999)),
@@ -573,16 +606,19 @@ const plDashboard = createDashboard({
     { key: 'year', selectId: 'pl-filterYear', allLabel: 'Alle jaren', accessor: p => p.date.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'pl-filterTeam', allLabel: 'Alle teams', accessor: p => p.team },
     { key: 'coach', selectId: 'pl-filterCoach', allLabel: 'Alle coaches', accessor: p => p.coach },
-    { key: 'type', selectId: 'pl-filterType', allLabel: 'Alle typen', accessor: p => p.type }
+    { key: 'soort', selectId: 'pl-filterSoort', allLabel: 'Alle soorten', accessor: p => p.soort },
+    { key: 'type', selectId: 'pl-filterType', allLabel: 'Alle typen', accessor: p => p.type || '' }
   ],
   rowRenderer: p => `
     <td>${formatDate(p.date)}</td>
     <td>${p.inwoner.name}</td>
     <td>${p.inwoner.administratienummer}</td>
-    <td>${formatDate(p.inwoner.birthdate)}</td>
     <td>${p.coach}</td>
     <td>${p.team}</td>
-    <td>${p.type}</td>`
+    <td>${p.soort}</td>
+    <td>${p.type || ''}</td>
+    <td>${p.zaakstatus}</td>
+    <td>${p.zaakstatus === 'Afgerond' && p.afsluitreden ? p.afsluitreden : ''}</td>`
 });
 
 // --- Contactmomenten dashboard ---
@@ -593,6 +629,7 @@ const cmDashboard = createDashboard({
   color: '#198038',
   hoverColor: '#0e6027',
   filters: [
+    { key: 'typeDienstverlening', selectId: 'cm-filterTypeDienstverlening', allLabel: 'Alle typen', accessor: c => c.typeDienstverlening },
     { key: 'year', selectId: 'cm-filterYear', allLabel: 'Alle jaren', accessor: c => c.date.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'cm-filterTeam', allLabel: 'Alle teams', accessor: c => c.team },
     { key: 'coach', selectId: 'cm-filterCoach', allLabel: 'Alle coaches', accessor: c => c.coach },
@@ -616,6 +653,7 @@ const abDashboard = (function() {
   let chart = null;
   let currentBuckets = [];
   const filterDefs = [
+    { key: 'typeDienstverlening', selectId: 'ab-filterTypeDienstverlening', allLabel: 'Alle typen', accessor: a => a.typeDienstverlening },
     { key: 'year', selectId: 'ab-filterYear', allLabel: 'Alle jaren', accessor: a => a.date.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'ab-filterTeam', allLabel: 'Alle teams', accessor: a => a.team },
     { key: 'coach', selectId: 'ab-filterCoach', allLabel: 'Alle coaches', accessor: a => a.coach },
@@ -816,6 +854,7 @@ const arDashboard = (function() {
   let chart = null;
   let currentBuckets = [];
   const filterDefs = [
+    { key: 'typeDienstverlening', selectId: 'ar-filterTypeDienstverlening', allLabel: 'Alle typen', accessor: a => a.typeDienstverlening },
     { key: 'year', selectId: 'ar-filterYear', allLabel: 'Alle jaren', accessor: a => a.eindDatum.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'ar-filterTeam', allLabel: 'Alle teams', accessor: a => a.team },
     { key: 'aanbod', selectId: 'ar-filterAanbod', allLabel: 'Alle aanbod', accessor: a => a.aanbodnaam },

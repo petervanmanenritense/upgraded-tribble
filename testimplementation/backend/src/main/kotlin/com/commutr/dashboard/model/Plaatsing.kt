@@ -26,5 +26,14 @@ class Plaatsing(
     var startDate: LocalDate = LocalDate.now(),
 
     @Column(nullable = false)
-    var type: String = ""
+    var soort: String = "",
+
+    @Column(nullable = true)
+    var type: String? = null,
+
+    @Column(nullable = false)
+    var zaakstatus: String = "",
+
+    @Column(nullable = true)
+    var afsluitreden: String? = null
 )

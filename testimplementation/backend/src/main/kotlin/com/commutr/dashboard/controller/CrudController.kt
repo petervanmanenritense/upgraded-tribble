@@ -11,7 +11,7 @@ import org.springframework.web.server.ResponseStatusException
 data class TeamRequest(val name: String)
 data class CoachRequest(val fullName: String, val teamId: Long)
 data class InwonerRequest(val fullName: String, val birthdate: String, val administratienummer: String)
-data class PlaatsingRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val startDate: String, val type: String)
+data class PlaatsingRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val startDate: String, val soort: String, val type: String? = null, val zaakstatus: String, val afsluitreden: String? = null)
 data class ContactmomentRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val date: String, val kanaal: String, val onderwerp: String)
 data class AanbodRequest(val inwonerById: Long, val coachId: Long, val teamId: Long, val startDate: String, val aanbodnaam: String, val afsluitreden: String?, val eindDatum: String?)
 
@@ -153,7 +153,8 @@ class PlaatsingController(
         val team = teamRepository.findById(request.teamId).orElseThrow { ResponseStatusException(HttpStatus.BAD_REQUEST, "Team not found") }
         return plaatsingRepository.save(Plaatsing(
             inwoner = inwoner, coach = coach, team = team,
-            startDate = java.time.LocalDate.parse(request.startDate), type = request.type
+            startDate = java.time.LocalDate.parse(request.startDate), soort = request.soort,
+            type = request.type, zaakstatus = request.zaakstatus, afsluitreden = request.afsluitreden
         ))
     }
 
@@ -164,7 +165,10 @@ class PlaatsingController(
         plaatsing.coach = coachRepository.findById(request.coachId).orElseThrow { ResponseStatusException(HttpStatus.BAD_REQUEST, "Coach not found") }
         plaatsing.team = teamRepository.findById(request.teamId).orElseThrow { ResponseStatusException(HttpStatus.BAD_REQUEST, "Team not found") }
         plaatsing.startDate = java.time.LocalDate.parse(request.startDate)
+        plaatsing.soort = request.soort
         plaatsing.type = request.type
+        plaatsing.zaakstatus = request.zaakstatus
+        plaatsing.afsluitreden = request.afsluitreden
         return plaatsingRepository.save(plaatsing)
     }
 

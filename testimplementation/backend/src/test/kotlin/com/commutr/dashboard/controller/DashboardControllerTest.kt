@@ -68,7 +68,7 @@ class DashboardControllerTest {
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.id").value("plaatsingen"))
                 .andExpect(jsonPath("$.chart.type").value("bar"))
-                .andExpect(jsonPath("$.filters.length()").value(4))
+                .andExpect(jsonPath("$.filters.length()").value(5))
         }
 
         @Test
@@ -82,8 +82,8 @@ class DashboardControllerTest {
     inner class GetSummary {
         @Test
         fun `returns summary for plaatsingen`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 20), type = "Scholing"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 20), soort = "Scholing", zaakstatus = "Afgerond", afsluitreden = "Succesvol afgerond"))
 
             mockMvc.perform(get("/api/v1/dashboards/plaatsingen/summary"))
                 .andExpect(status().isOk)
@@ -92,10 +92,10 @@ class DashboardControllerTest {
 
         @Test
         fun `applies query param filters`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 20), type = "Scholing"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 20), soort = "Scholing", zaakstatus = "Afgerond", afsluitreden = "Succesvol afgerond"))
 
-            mockMvc.perform(get("/api/v1/dashboards/plaatsingen/summary?type=Werk"))
+            mockMvc.perform(get("/api/v1/dashboards/plaatsingen/summary?soort=Werk"))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.total").value(1))
         }
@@ -105,7 +105,7 @@ class DashboardControllerTest {
     inner class GetChart {
         @Test
         fun `returns chart data`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(get("/api/v1/dashboards/plaatsingen/chart"))
                 .andExpect(status().isOk)
@@ -116,7 +116,7 @@ class DashboardControllerTest {
 
         @Test
         fun `year filter returns 12 months`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 6, 15), type = "Werk"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 6, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(get("/api/v1/dashboards/plaatsingen/chart?year=2025"))
                 .andExpect(status().isOk)
@@ -128,13 +128,13 @@ class DashboardControllerTest {
     inner class GetFilters {
         @Test
         fun `returns filter options`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(get("/api/v1/dashboards/plaatsingen/filters"))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.year").isArray)
                 .andExpect(jsonPath("$.team").isArray)
-                .andExpect(jsonPath("$.type[0]").value("Werk"))
+                .andExpect(jsonPath("$.soort[0]").value("Werk"))
         }
     }
 
@@ -142,13 +142,13 @@ class DashboardControllerTest {
     inner class GetDetails {
         @Test
         fun `returns detail rows for month`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(get("/api/v1/dashboards/plaatsingen/details?month=2025-03"))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.title").isString)
                 .andExpect(jsonPath("$.rows.length()").value(1))
-                .andExpect(jsonPath("$.rows[0].type").value("Werk"))
+                .andExpect(jsonPath("$.rows[0].soort").value("Werk"))
         }
 
         @Test

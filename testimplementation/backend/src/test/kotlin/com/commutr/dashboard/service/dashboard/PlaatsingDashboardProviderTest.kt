@@ -48,10 +48,14 @@ class PlaatsingDashboardProviderTest {
         coach: Coach = coach1,
         team: Team = team1,
         startDate: LocalDate = LocalDate.of(2025, 3, 15),
-        type: String = "Werk"
+        soort: String = "Werk",
+        type: String? = null,
+        zaakstatus: String = "Lopend",
+        afsluitreden: String? = null
     ): Plaatsing = em.persist(Plaatsing(
         inwoner = inwoner, coach = coach, team = team,
-        startDate = startDate, type = type
+        startDate = startDate, soort = soort, type = type,
+        zaakstatus = zaakstatus, afsluitreden = afsluitreden
     ))
 
     @Test
@@ -66,7 +70,7 @@ class PlaatsingDashboardProviderTest {
         fun `returns correct filter keys`() {
             val config = provider.getConfig()
             val filterKeys = config.filters.map { it.key }
-            assertEquals(listOf("year", "team", "coach", "type"), filterKeys)
+            assertEquals(listOf("year", "team", "coach", "soort", "type"), filterKeys)
         }
 
         @Test
@@ -82,8 +86,11 @@ class PlaatsingDashboardProviderTest {
             val columnKeys = config.detailTable.columns.map { it.key }
             assertTrue("date" in columnKeys)
             assertTrue("inwoner" in columnKeys)
+            assertTrue("soort" in columnKeys)
             assertTrue("type" in columnKeys)
-            assertEquals(7, columnKeys.size)
+            assertTrue("zaakstatus" in columnKeys)
+            assertTrue("afsluitreden" in columnKeys)
+            assertEquals(9, columnKeys.size)
         }
     }
 
@@ -168,24 +175,24 @@ class PlaatsingDashboardProviderTest {
         }
 
         @Test
-        fun `filters by type`() {
-            createPlaatsing(type = "Werk")
-            createPlaatsing(type = "Werk")
-            createPlaatsing(type = "Scholing")
+        fun `filters by soort`() {
+            createPlaatsing(soort = "Werk")
+            createPlaatsing(soort = "Werk")
+            createPlaatsing(soort = "Scholing")
             em.flush()
 
-            val summary = provider.getSummary(mapOf("type" to "Scholing"))
+            val summary = provider.getSummary(mapOf("soort" to "Scholing"))
             assertEquals(1, summary.total)
         }
 
         @Test
         fun `combines multiple filters`() {
-            createPlaatsing(team = team1, type = "Werk", startDate = LocalDate.of(2025, 1, 10))
-            createPlaatsing(team = team1, type = "Scholing", startDate = LocalDate.of(2025, 1, 20))
-            createPlaatsing(team = team2, type = "Werk", startDate = LocalDate.of(2025, 1, 15))
+            createPlaatsing(team = team1, soort = "Werk", startDate = LocalDate.of(2025, 1, 10))
+            createPlaatsing(team = team1, soort = "Scholing", startDate = LocalDate.of(2025, 1, 20))
+            createPlaatsing(team = team2, soort = "Werk", startDate = LocalDate.of(2025, 1, 15))
             em.flush()
 
-            val summary = provider.getSummary(mapOf("team" to "Team Volwassenen", "type" to "Werk"))
+            val summary = provider.getSummary(mapOf("team" to "Team Volwassenen", "soort" to "Werk"))
             assertEquals(1, summary.total)
         }
 
@@ -284,13 +291,13 @@ class PlaatsingDashboardProviderTest {
 
         @Test
         fun `cascading - team filter narrows other options`() {
-            createPlaatsing(team = team1, coach = coach1, type = "Werk")
-            createPlaatsing(team = team2, coach = coach2, type = "Scholing")
+            createPlaatsing(team = team1, coach = coach1, soort = "Werk")
+            createPlaatsing(team = team2, coach = coach2, soort = "Scholing")
             em.flush()
 
             val options = provider.getFilterOptions(mapOf("team" to "Team Volwassenen"))
             assertEquals(listOf("Peter de Vries"), options["coach"])
-            assertEquals(listOf("Werk"), options["type"])
+            assertEquals(listOf("Werk"), options["soort"])
             // Team options should still show both (team filter excluded for team)
             assertEquals(listOf("Team Inburgering", "Team Volwassenen"), options["team"])
         }
@@ -300,9 +307,9 @@ class PlaatsingDashboardProviderTest {
     inner class GetDetails {
         @Test
         fun `returns records for specified month`() {
-            createPlaatsing(startDate = LocalDate.of(2025, 3, 10), type = "Werk")
-            createPlaatsing(startDate = LocalDate.of(2025, 3, 20), type = "Scholing")
-            createPlaatsing(startDate = LocalDate.of(2025, 4, 5), type = "Werk")
+            createPlaatsing(startDate = LocalDate.of(2025, 3, 10), soort = "Werk")
+            createPlaatsing(startDate = LocalDate.of(2025, 3, 20), soort = "Scholing")
+            createPlaatsing(startDate = LocalDate.of(2025, 4, 5), soort = "Werk")
             em.flush()
 
             val details = provider.getDetails("2025-03", null, emptyMap())
@@ -314,7 +321,9 @@ class PlaatsingDashboardProviderTest {
         fun `detail rows contain all expected fields`() {
             createPlaatsing(
                 inwoner = inwoner1, coach = coach1, team = team1,
-                startDate = LocalDate.of(2025, 3, 15), type = "Werk"
+                startDate = LocalDate.of(2025, 3, 15), soort = "Werk",
+                type = "Plaatsing betaald werk > 24 uur",
+                zaakstatus = "Afgerond", afsluitreden = "Succesvol afgerond"
             )
             em.flush()
 
@@ -323,21 +332,37 @@ class PlaatsingDashboardProviderTest {
             assertEquals("2025-03-15", row["date"])
             assertEquals("Jan Jansen", row["inwoner"])
             assertEquals("ADM001", row["administratienummer"])
-            assertEquals("1990-01-15", row["birthdate"])
             assertEquals("Peter de Vries", row["coach"])
             assertEquals("Team Volwassenen", row["team"])
-            assertEquals("Werk", row["type"])
+            assertEquals("Werk", row["soort"])
+            assertEquals("Plaatsing betaald werk > 24 uur", row["type"])
+            assertEquals("Afgerond", row["zaakstatus"])
+            assertEquals("Succesvol afgerond", row["afsluitreden"])
+        }
+
+        @Test
+        fun `afsluitreden is null when zaakstatus is not Afgerond`() {
+            createPlaatsing(
+                startDate = LocalDate.of(2025, 3, 15),
+                zaakstatus = "Lopend", afsluitreden = null
+            )
+            em.flush()
+
+            val details = provider.getDetails("2025-03", null, emptyMap())
+            val row = details.rows[0]
+            assertEquals("Lopend", row["zaakstatus"])
+            assertNull(row["afsluitreden"])
         }
 
         @Test
         fun `respects active filters`() {
-            createPlaatsing(startDate = LocalDate.of(2025, 3, 10), type = "Werk")
-            createPlaatsing(startDate = LocalDate.of(2025, 3, 20), type = "Scholing")
+            createPlaatsing(startDate = LocalDate.of(2025, 3, 10), soort = "Werk")
+            createPlaatsing(startDate = LocalDate.of(2025, 3, 20), soort = "Scholing")
             em.flush()
 
-            val details = provider.getDetails("2025-03", null, mapOf("type" to "Werk"))
+            val details = provider.getDetails("2025-03", null, mapOf("soort" to "Werk"))
             assertEquals(1, details.rows.size)
-            assertEquals("Werk", details.rows[0]["type"])
+            assertEquals("Werk", details.rows[0]["soort"])
         }
     }
 

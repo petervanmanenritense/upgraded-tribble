@@ -29,6 +29,7 @@ class PlaatsingDashboardProvider(
             FilterConfig("year", "Jaar"),
             FilterConfig("team", "Team"),
             FilterConfig("coach", "Coach"),
+            FilterConfig("soort", "Soort"),
             FilterConfig("type", "Type")
         ),
         chart = ChartConfig("bar", "Maand", "Aantal", listOf("#0f62fe")),
@@ -42,10 +43,12 @@ class PlaatsingDashboardProvider(
                 ColumnConfig("date", "Datum"),
                 ColumnConfig("inwoner", "Inwoner"),
                 ColumnConfig("administratienummer", "Administratienummer"),
-                ColumnConfig("birthdate", "Geboortedatum"),
                 ColumnConfig("coach", "Coach"),
                 ColumnConfig("team", "Team"),
-                ColumnConfig("type", "Type")
+                ColumnConfig("soort", "Soort"),
+                ColumnConfig("type", "Type"),
+                ColumnConfig("zaakstatus", "Zaakstatus"),
+                ColumnConfig("afsluitreden", "Afsluitreden")
             )
         )
     )
@@ -76,6 +79,11 @@ class PlaatsingDashboardProvider(
                     predicates.add(cb.equal(root.get<Any>("coach").get<String>("fullName"), coach))
                 }
             }
+            if (excludeKey != "soort") {
+                filters["soort"]?.takeIf { it.isNotBlank() }?.let { soort ->
+                    predicates.add(cb.equal(root.get<String>("soort"), soort))
+                }
+            }
             if (excludeKey != "type") {
                 filters["type"]?.takeIf { it.isNotBlank() }?.let { type ->
                     predicates.add(cb.equal(root.get<String>("type"), type))
@@ -98,8 +106,11 @@ class PlaatsingDashboardProvider(
         val forCoach = plaatsingRepository.findAll(buildSpec(filters, excludeKey = "coach"))
         result["coach"] = forCoach.mapNotNull { it.coach?.fullName }.distinct().sorted()
 
+        val forSoort = plaatsingRepository.findAll(buildSpec(filters, excludeKey = "soort"))
+        result["soort"] = forSoort.map { it.soort }.distinct().sorted()
+
         val forType = plaatsingRepository.findAll(buildSpec(filters, excludeKey = "type"))
-        result["type"] = forType.map { it.type }.distinct().sorted()
+        result["type"] = forType.mapNotNull { it.type }.distinct().sorted()
 
         return result
     }
@@ -135,10 +146,12 @@ class PlaatsingDashboardProvider(
                 "date" to p.startDate.toString(),
                 "inwoner" to (p.inwoner?.fullName),
                 "administratienummer" to (p.inwoner?.administratienummer),
-                "birthdate" to (p.inwoner?.birthdate?.toString()),
                 "coach" to (p.coach?.fullName),
                 "team" to (p.team?.name),
-                "type" to p.type
+                "soort" to p.soort,
+                "type" to p.type,
+                "zaakstatus" to p.zaakstatus,
+                "afsluitreden" to if (p.zaakstatus == "Afgerond") p.afsluitreden else null
             )
         }
         return DetailDataDto(title = "Plaatsingen - ${formatMonth(ym)}", rows = rows)

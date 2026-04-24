@@ -192,10 +192,13 @@ class CrudControllerTest {
             mockMvc.perform(
                 post("/api/v1/plaatsingen")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "type": "Werk"}""")
+                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "soort": "Werk", "type": "Plaatsing betaald werk > 24 uur", "zaakstatus": "Afgerond", "afsluitreden": "Succesvol afgerond"}""")
             )
                 .andExpect(status().isCreated)
-                .andExpect(jsonPath("$.type").value("Werk"))
+                .andExpect(jsonPath("$.soort").value("Werk"))
+                .andExpect(jsonPath("$.type").value("Plaatsing betaald werk > 24 uur"))
+                .andExpect(jsonPath("$.zaakstatus").value("Afgerond"))
+                .andExpect(jsonPath("$.afsluitreden").value("Succesvol afgerond"))
                 .andExpect(jsonPath("$.inwoner.fullName").value("Test Inwoner"))
                 .andExpect(jsonPath("$.coach.fullName").value("Test Coach"))
                 .andExpect(jsonPath("$.team.name").value("TestTeam"))
@@ -203,7 +206,7 @@ class CrudControllerTest {
 
         @Test
         fun `GET all plaatsingen`() {
-            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
+            plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(get("/api/v1/plaatsingen"))
                 .andExpect(status().isOk)
@@ -212,21 +215,23 @@ class CrudControllerTest {
 
         @Test
         fun `PUT updates plaatsing`() {
-            val p = plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
+            val p = plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(
                 put("/api/v1/plaatsingen/${p.id}")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-07-01", "type": "Scholing"}""")
+                    .content("""{"inwonerById": ${inwoner.id}, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-07-01", "soort": "Scholing", "zaakstatus": "Afgerond", "afsluitreden": "Succesvol afgerond"}""")
             )
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.type").value("Scholing"))
+                .andExpect(jsonPath("$.soort").value("Scholing"))
                 .andExpect(jsonPath("$.startDate").value("2025-07-01"))
+                .andExpect(jsonPath("$.zaakstatus").value("Afgerond"))
+                .andExpect(jsonPath("$.afsluitreden").value("Succesvol afgerond"))
         }
 
         @Test
         fun `DELETE plaatsing`() {
-            val p = plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), type = "Werk"))
+            val p = plaatsingRepository.save(Plaatsing(inwoner = inwoner, coach = coach, team = team, startDate = LocalDate.of(2025, 3, 15), soort = "Werk", zaakstatus = "Lopend"))
 
             mockMvc.perform(delete("/api/v1/plaatsingen/${p.id}"))
                 .andExpect(status().isNoContent)
@@ -237,7 +242,7 @@ class CrudControllerTest {
             mockMvc.perform(
                 post("/api/v1/plaatsingen")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("""{"inwonerById": 99999, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "type": "Werk"}""")
+                    .content("""{"inwonerById": 99999, "coachId": ${coach.id}, "teamId": ${team.id}, "startDate": "2025-06-01", "soort": "Werk", "zaakstatus": "Lopend"}""")
             )
                 .andExpect(status().isBadRequest)
         }

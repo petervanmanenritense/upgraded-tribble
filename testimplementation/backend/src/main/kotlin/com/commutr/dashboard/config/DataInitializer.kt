@@ -88,22 +88,43 @@ class DataInitializer(
         fun randomDate(): LocalDate = startDate.plusDays(random.nextInt(totalDays).toLong())
 
         // Plaatsingen (~200)
-        val plaatsingTypes = listOf(
+        val plaatsingSoorten = listOf(
             "Werk", "Scholing", "Ondernemen", "Beschut werk",
             "WSW", "Banenafspraak regulier", "Banenafspraak praktijk route"
         )
+        val typesBySoort = mapOf(
+            "Werk" to listOf("Plaatsing betaald werk + opleiding", "Plaatsing betaald werk < 12 uur", "Plaatsing betaald werk > 24 uur"),
+            "WSW" to listOf("Plaatsing WSW voltijd", "Plaatsing WSW deeltijd")
+        )
+        val zaakstatussen = listOf("Lopend", "Afgerond", "Geannuleerd")
+        val plaatsingAfsluitredenen = listOf(
+            "Succesvol afgerond", "Voortijdig gestopt", "Administratief afgesloten",
+            "Doorverwezen", "Niet verschenen"
+        )
         repeat(200) {
             val coach = coaches[random.nextInt(coaches.size)]
+            val soort = plaatsingSoorten[random.nextInt(plaatsingSoorten.size)]
+            val types = typesBySoort[soort]
+            val type = types?.let { it[random.nextInt(it.size)] }
+            val zaakstatus = zaakstatussen[random.nextInt(zaakstatussen.size)]
+            val afsluitreden = if (zaakstatus == "Afgerond") {
+                plaatsingAfsluitredenen[random.nextInt(plaatsingAfsluitredenen.size)]
+            } else null
             plaatsingRepository.save(
                 Plaatsing(
                     inwoner = inwoners[random.nextInt(inwoners.size)],
                     coach = coach,
                     team = coach.team!!,
                     startDate = randomDate(),
-                    type = plaatsingTypes[random.nextInt(plaatsingTypes.size)]
+                    soort = soort,
+                    type = type,
+                    zaakstatus = zaakstatus,
+                    afsluitreden = afsluitreden
                 )
             )
         }
+
+        val typenDienstverlening = listOf("Werk", "Inburgering")
 
         // Contactmomenten (~500)
         val kanalen = listOf(
@@ -122,6 +143,7 @@ class DataInitializer(
                     inwoner = inwoners[random.nextInt(inwoners.size)],
                     coach = coach,
                     team = coach.team!!,
+                    typeDienstverlening = typenDienstverlening[random.nextInt(typenDienstverlening.size)],
                     date = randomDate(),
                     kanaal = kanalen[random.nextInt(kanalen.size)],
                     onderwerp = onderwerpen[random.nextInt(onderwerpen.size)]
@@ -153,6 +175,7 @@ class DataInitializer(
                     coach = coach,
                     team = coach.team!!,
                     startDate = aanbodStartDate,
+                    typeDienstverlening = typenDienstverlening[random.nextInt(typenDienstverlening.size)],
                     aanbodnaam = aanbodnamen[random.nextInt(aanbodnamen.size)],
                     afsluitreden = afsluitreden,
                     eindDatum = eindDatum
