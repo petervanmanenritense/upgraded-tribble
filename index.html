@@ -608,8 +608,8 @@ const plDashboard = createDashboard({
   prefix: 'pl',
   data: plaatsingen,
   chartLabel: 'Plaatsingen',
-  color: '#0f62fe',
-  hoverColor: '#0043ce',
+  color: '#e40303',
+  hoverColor: '#b50202',
   filters: [
     { key: 'year', selectId: 'pl-filterYear', allLabel: 'Alle jaren', accessor: p => p.date.getFullYear(), sortDesc: true },
     { key: 'team', selectId: 'pl-filterTeam', allLabel: 'Alle teams', accessor: p => p.team },
@@ -637,8 +637,8 @@ const cmDashboard = createDashboard({
   prefix: 'cm',
   data: contactmomenten,
   chartLabel: 'Contactmomenten',
-  color: '#198038',
-  hoverColor: '#0e6027',
+  color: '#ff8c00',
+  hoverColor: '#cc7000',
   filters: [
     { key: 'typeDienstverlening', selectId: 'cm-filterTypeDienstverlening', allLabel: 'Alle typen', accessor: c => c.typeDienstverlening },
     { key: 'year', selectId: 'cm-filterYear', allLabel: 'Alle jaren', accessor: c => c.date.getFullYear(), sortDesc: true },
@@ -658,7 +658,7 @@ const cmDashboard = createDashboard({
 });
 
 // --- Aanbod dashboard (stacked bar chart) ---
-const abStackColors = ['#0f62fe','#198038','#8a3ffc','#ff832b','#002d9c','#6fdc8c','#d4bbff','#ffb784','#0072c3','#24a148','#ba4e00','#491d8b','#009d9a','#fa4d56','#005d5d'];
+const abStackColors = ['#e40303','#ff8c00','#ffed00','#008026','#24408e','#732982','#ff6b6b','#ffb347','#fff176','#66bb6a','#5c6bc0','#ab47bc','#ef9a9a','#ffe0b2','#c5e1a5'];
 
 const abDashboard = (function() {
   let chart = null;
@@ -857,7 +857,7 @@ const abDashboard = (function() {
 })();
 
 // --- Aanbod resultaat dashboard (stacked bar chart, only records with afsluitreden, no coach filter) ---
-const arStackColors = ['#6929c4','#1192e8','#005d5d','#9f1853','#fa4d56','#570408','#198038','#002d9c','#ee538b','#b28600','#009d9a','#012749','#8a3800','#a56eff','#006161'];
+const arStackColors = ['#e40303','#ff8c00','#ffed00','#008026','#24408e','#732982','#ff6b6b','#ffb347','#fff176','#66bb6a','#5c6bc0','#ab47bc','#ef9a9a','#ffe0b2','#c5e1a5'];
 
 const aanbodResultaatData = aanbodData.filter(a => a.afsluitreden !== null && a.eindDatum !== null);
 
