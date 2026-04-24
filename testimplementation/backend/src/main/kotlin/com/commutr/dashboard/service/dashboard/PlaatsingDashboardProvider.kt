@@ -30,7 +30,9 @@ class PlaatsingDashboardProvider(
             FilterConfig("team", "Team"),
             FilterConfig("coach", "Coach"),
             FilterConfig("soort", "Soort"),
-            FilterConfig("type", "Type")
+            FilterConfig("type", "Type"),
+            FilterConfig("zaakstatus", "Zaakstatus"),
+            FilterConfig("afsluitreden", "Afsluitreden")
         ),
         chart = ChartConfig("bar", "Maand", "Aantal", listOf("#0f62fe")),
         summaryCards = listOf(
@@ -89,6 +91,16 @@ class PlaatsingDashboardProvider(
                     predicates.add(cb.equal(root.get<String>("type"), type))
                 }
             }
+            if (excludeKey != "zaakstatus") {
+                filters["zaakstatus"]?.takeIf { it.isNotBlank() }?.let { zaakstatus ->
+                    predicates.add(cb.equal(root.get<String>("zaakstatus"), zaakstatus))
+                }
+            }
+            if (excludeKey != "afsluitreden") {
+                filters["afsluitreden"]?.takeIf { it.isNotBlank() }?.let { afsluitreden ->
+                    predicates.add(cb.equal(root.get<String>("afsluitreden"), afsluitreden))
+                }
+            }
 
             cb.and(*predicates.toTypedArray())
         }
@@ -111,6 +123,12 @@ class PlaatsingDashboardProvider(
 
         val forType = plaatsingRepository.findAll(buildSpec(filters, excludeKey = "type"))
         result["type"] = forType.mapNotNull { it.type }.distinct().sorted()
+
+        val forZaakstatus = plaatsingRepository.findAll(buildSpec(filters, excludeKey = "zaakstatus"))
+        result["zaakstatus"] = forZaakstatus.map { it.zaakstatus }.distinct().sorted()
+
+        val forAfsluitreden = plaatsingRepository.findAll(buildSpec(filters, excludeKey = "afsluitreden"))
+        result["afsluitreden"] = forAfsluitreden.mapNotNull { it.afsluitreden }.distinct().sorted()
 
         return result
     }

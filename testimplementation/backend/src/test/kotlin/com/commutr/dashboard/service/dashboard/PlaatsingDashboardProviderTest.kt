@@ -70,7 +70,7 @@ class PlaatsingDashboardProviderTest {
         fun `returns correct filter keys`() {
             val config = provider.getConfig()
             val filterKeys = config.filters.map { it.key }
-            assertEquals(listOf("year", "team", "coach", "soort", "type"), filterKeys)
+            assertEquals(listOf("year", "team", "coach", "soort", "type", "zaakstatus", "afsluitreden"), filterKeys)
         }
 
         @Test

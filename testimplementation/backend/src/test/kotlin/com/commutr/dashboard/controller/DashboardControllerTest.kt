@@ -68,7 +68,7 @@ class DashboardControllerTest {
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.id").value("plaatsingen"))
                 .andExpect(jsonPath("$.chart.type").value("bar"))
-                .andExpect(jsonPath("$.filters.length()").value(5))
+                .andExpect(jsonPath("$.filters.length()").value(7))
         }
 
         @Test

@@ -41,7 +41,7 @@
     .filter-group select:focus { border-bottom-color: #0f62fe; outline: 2px solid #0f62fe; outline-offset: -2px; }
 
     /* Content */
-    .content { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+    .content { padding: 1.5rem 2rem; max-width: 1600px; margin: 0 auto; }
 
     /* Summary tiles */
     .summary { display: flex; gap: 1px; margin-bottom: 1.5rem; }
@@ -57,7 +57,7 @@
     canvas { cursor: pointer; }
 
     /* Data table */
-    .table-section { background: #ffffff; padding: 1.5rem; margin-top: 1.5rem; }
+    .table-section { background: #ffffff; padding: 1.5rem; margin-top: 1.5rem; overflow-x: auto; }
     .table-section h2 { font-size: 0.875rem; font-weight: 600; color: #161616; margin-bottom: 1rem; letter-spacing: 0.16px; }
     .table-section table { width: 100%; border-collapse: collapse; }
     .table-section thead th {
@@ -118,6 +118,14 @@
       <label for="pl-filterType">Type</label>
       <select id="pl-filterType"><option value="">Alle typen</option></select>
     </div>
+    <div class="filter-group">
+      <label for="pl-filterZaakstatus">Zaakstatus</label>
+      <select id="pl-filterZaakstatus"><option value="">Alle statussen</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="pl-filterAfsluitreden">Afsluitreden</label>
+      <select id="pl-filterAfsluitreden"><option value="">Alle afsluitredenen</option></select>
+    </div>
   </div>
   <div class="content">
     <div class="summary">
@@ -134,7 +142,7 @@
       <h2 id="pl-detailTitle">Details</h2>
       <table>
         <thead><tr>
-          <th>Datum</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Soort</th><th>Type</th><th>Zaakstatus</th><th>Afsluitreden</th>
+          <th>Datum</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Soort</th><th>Type</th><th>Zaakstatus</th><th>Afsluitreden</th><th></th>
         </tr></thead>
         <tbody id="pl-detailBody"></tbody>
       </table>
@@ -607,7 +615,9 @@ const plDashboard = createDashboard({
     { key: 'team', selectId: 'pl-filterTeam', allLabel: 'Alle teams', accessor: p => p.team },
     { key: 'coach', selectId: 'pl-filterCoach', allLabel: 'Alle coaches', accessor: p => p.coach },
     { key: 'soort', selectId: 'pl-filterSoort', allLabel: 'Alle soorten', accessor: p => p.soort },
-    { key: 'type', selectId: 'pl-filterType', allLabel: 'Alle typen', accessor: p => p.type || '' }
+    { key: 'type', selectId: 'pl-filterType', allLabel: 'Alle typen', accessor: p => p.type || '' },
+    { key: 'zaakstatus', selectId: 'pl-filterZaakstatus', allLabel: 'Alle statussen', accessor: p => p.zaakstatus },
+    { key: 'afsluitreden', selectId: 'pl-filterAfsluitreden', allLabel: 'Alle afsluitredenen', accessor: p => p.afsluitreden || '' }
   ],
   rowRenderer: p => `
     <td>${formatDate(p.date)}</td>
@@ -618,7 +628,8 @@ const plDashboard = createDashboard({
     <td>${p.soort}</td>
     <td>${p.type || ''}</td>
     <td>${p.zaakstatus}</td>
-    <td>${p.zaakstatus === 'Afgehandeld' && p.afsluitreden ? p.afsluitreden : ''}</td>`
+    <td>${p.zaakstatus === 'Afgehandeld' && p.afsluitreden ? p.afsluitreden : ''}</td>
+    <td><a href="#" style="color:#0f62fe;text-decoration:none;font-weight:600;white-space:nowrap">Open dossier</a></td>`
 });
 
 // --- Contactmomenten dashboard ---
