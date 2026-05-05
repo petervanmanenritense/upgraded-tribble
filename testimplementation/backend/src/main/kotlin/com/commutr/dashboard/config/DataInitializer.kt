@@ -154,13 +154,14 @@ class DataInitializer(
         // Aanbod (~300)
         val aanbodnamen = listOf(
             "Taalcoaching", "Werkfit traject", "Participatieplaats",
-            "Sociale activering", "Schuldhulpverlening", "Re-integratie traject",
-            "Jobcoaching", "Digitale vaardigheden", "Budgetbeheer"
+            "Oriëntatie op werk", "Digitale vaardigheden", "Duale inburgering",
+            "Entree opleiding", "Kort beroepsonderwijs", "Sociale activering",
+            "Vrijwilligerswerk", "Jobcoaching", "Sollicitatietraining",
+            "Budgetcoaching", "MAP-training", "Ondernemerschapstraject"
         )
         val afsluitredenen = listOf(
-            "Succesvol afgerond", "Voortijdig gestopt", "Administratief afgesloten",
-            "Aanbod afgesloten wegens wijzigen leerroute", "Doorverwezen",
-            "Niet verschenen", null
+            "Doel aanbod behaald", "Doel aanbod niet behaald", "Doel aanbod deels behaald",
+            "Administratief afgesloten", "Aanbod afgesloten wegens wijzigen leerroute", null
         )
         repeat(300) {
             val coach = coaches[random.nextInt(coaches.size)]

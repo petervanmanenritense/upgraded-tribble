@@ -27,12 +27,10 @@ MAP-training
 Ondernemerschapstraject
 
 Possible afsluitredenen:
-Succesvol afgerond
-Voortijdig gestopt
+Doel aanbod behaald
+Doel aanbod niet behaald
+Doel aanbod deels behaald
 Administratief afgesloten
-Niet verschenen
 Aanbod afgesloten wegens wijzigen leerroute
-Doorstroom naar ander aanbod
-Medische redenen
 
 Filter rule: Aanbod with afsluitreden 'Administratief afgesloten' or 'Aanbod afgesloten wegens wijzigen leerroute' are excluded from all views.
