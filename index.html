@@ -81,6 +81,7 @@
     .hidden { display: none; }
     .view { display: none; }
     .view.active { display: block; }
+    .last-updated { text-align: right; font-size: 0.75rem; color: #6f6f6f; padding: 0.5rem 0; letter-spacing: 0.16px; }
   </style>
 </head>
 <body>
@@ -146,6 +147,7 @@
         <tbody id="pl-detailBody"></tbody>
       </table>
     </div>
+    <div class="last-updated" id="pl-lastUpdated"></div>
   </div>
 </div>
 
@@ -197,6 +199,7 @@
         <tbody id="cm-detailBody"></tbody>
       </table>
     </div>
+    <div class="last-updated" id="cm-lastUpdated"></div>
   </div>
 </div>
 
@@ -248,6 +251,7 @@
         <tbody id="ab-detailBody"></tbody>
       </table>
     </div>
+    <div class="last-updated" id="ab-lastUpdated"></div>
   </div>
 </div>
 
@@ -830,6 +834,13 @@ document.querySelectorAll('.tab-btn').forEach(tab => {
 // --- Init ---
 const hashView = location.hash.replace('#', '');
 switchTab(dashboards[hashView] ? hashView : 'plaatsingen');
+
+// --- Last updated timestamp ---
+const now = new Date();
+const lastUpdated = `Data laatst geactualiseerd: ${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated'].forEach(id => {
+  document.getElementById(id).textContent = lastUpdated;
+});
 </script>
 
 </body>
