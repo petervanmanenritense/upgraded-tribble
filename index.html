@@ -811,19 +811,25 @@ const abDashboard = (function() {
 // --- Tabs ---
 const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard };
 let activeView = 'plaatsingen';
+function switchTab(viewId) {
+  if (!dashboards[viewId]) return;
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const tab = document.querySelector(`.tab-btn[data-view="${viewId}"]`);
+  if (tab) tab.classList.add('active');
+  activeView = viewId;
+  document.getElementById('view-' + activeView).classList.add('active');
+  dashboards[activeView].update();
+  history.replaceState(null, '', '#' + viewId);
+}
+
 document.querySelectorAll('.tab-btn').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    tab.classList.add('active');
-    activeView = tab.dataset.view;
-    document.getElementById('view-' + activeView).classList.add('active');
-    dashboards[activeView].update();
-  });
+  tab.addEventListener('click', () => switchTab(tab.dataset.view));
 });
 
 // --- Init ---
-plDashboard.update();
+const hashView = location.hash.replace('#', '');
+switchTab(dashboards[hashView] ? hashView : 'plaatsingen');
 </script>
 
 </body>
