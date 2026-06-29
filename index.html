@@ -92,6 +92,7 @@
     <button class="tab-btn active" data-view="plaatsingen">Plaatsingen</button>
     <button class="tab-btn" data-view="contactmomenten">Contactmomenten</button>
     <button class="tab-btn" data-view="aanbod">Aanbod</button>
+    <button class="tab-btn" data-view="instroomuitstroom">Instroom / Uitstroom</button>
   </div>
 </div>
 
@@ -255,6 +256,55 @@
   </div>
 </div>
 
+<!-- INSTROOM / UITSTROOM VIEW -->
+<div class="view" id="view-instroomuitstroom">
+  <div class="filters">
+    <div class="filter-group">
+      <label for="iu-filterDienstverlening">Dienstverlening</label>
+      <select id="iu-filterDienstverlening"><option value="">Alle typen</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="iu-filterYear">Jaar</label>
+      <select id="iu-filterYear"><option value="">Alle jaren</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="iu-filterMonth">Maand</label>
+      <select id="iu-filterMonth"><option value="">Alle maanden</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="iu-filterTeam">Team</label>
+      <select id="iu-filterTeam"><option value="">Alle teams</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="iu-filterCoach">Coach</label>
+      <select id="iu-filterCoach"><option value="">Alle coaches</option></select>
+    </div>
+  </div>
+  <div class="content">
+    <div class="summary">
+      <div class="tile"><div class="tile-value" id="iu-avgInstroom">0</div><div class="tile-label">Gemiddelde instroom</div></div>
+      <div class="tile"><div class="tile-value" id="iu-avgUitstroom">0</div><div class="tile-label">Gemiddelde uitstroom</div></div>
+      <div class="tile"><div class="tile-value" id="iu-avgOpen">0</div><div class="tile-label">Gemiddeld aantal open zaken</div></div>
+      <div class="tile"><div class="tile-value" id="iu-avgDoorlooptijd">-</div><div class="tile-label">Gemiddelde doorlooptijd</div></div>
+    </div>
+    <div class="chart-tile">
+      <h2>Instroom, uitstroom en open zaken per maand</h2>
+      <canvas id="iu-chart" height="100"></canvas>
+      <p class="hint">Klik op een staaf of lijnpunt om de details te bekijken</p>
+    </div>
+    <div class="table-section hidden" id="iu-detailSection">
+      <h2 id="iu-detailTitle">Details</h2>
+      <table>
+        <thead><tr>
+          <th>Startdatum</th><th>Einddatum</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Dienstverlening</th><th>Status</th>
+        </tr></thead>
+        <tbody id="iu-detailBody"></tbody>
+      </table>
+    </div>
+    <div class="last-updated" id="iu-lastUpdated"></div>
+  </div>
+</div>
+
 <script>
 // --- Shared ---
 const teamsList = ['Team Volwassenen', 'Team Inburgering', 'Team Partners', 'Team Maatschappelijk Fit'];
@@ -378,9 +428,46 @@ function generateAanbod() {
   return data.filter(a => !a.afsluitreden || !excludedAfsluitredenen.includes(a.afsluitreden));
 }
 
+// --- Instroom / Uitstroom data (zaken) ---
+// Een zaak start (instroom) op de startdatum en eindigt (uitstroom) op de einddatum.
+// Zonder einddatum is de zaak nog open. De open caseload op enig moment is het saldo
+// van alle zaken die zijn gestart en nog niet zijn afgesloten.
+function generateZaken() {
+  const data = [];
+  let adminNr = 2000001;
+  const dataEnd = new Date(2026, 2, 31); // 31-03-2026, einde van de dataset
+  for (let year = 2024; year <= 2026; year++) {
+    const maxMonth = year === 2026 ? 3 : 12;
+    for (let month = 1; month <= maxMonth; month++) {
+      const count = randInt(10, 28);
+      for (let i = 0; i < count; i++) {
+        const team = rand(teamsList);
+        const start = new Date(year, month - 1, randInt(1, 28));
+        const duration = randInt(20, 540); // dagen tot afsluiting
+        const planned = new Date(start.getTime() + duration * 86400000);
+        // Een zaak is afgesloten als de geplande einddatum binnen de dataset valt;
+        // een klein deel blijft langdurig open. Zo groeit de open caseload realistisch.
+        let eindDatum = null;
+        if (planned <= dataEnd && Math.random() < 0.9) eindDatum = planned;
+        data.push({
+          coach: rand(coachesByTeam[team]),
+          team,
+          date: start,
+          eindDatum,
+          dienstverlening: rand(typenDienstverlening),
+          inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
+          administratienummer: String(adminNr++)
+        });
+      }
+    }
+  }
+  return data;
+}
+
 const plaatsingen = generatePlaatsingen();
 const contactmomenten = generateContactmomenten();
 const aanbodData = generateAanbod();
+const zaken = generateZaken();
 
 // --- Generic dashboard engine ---
 function createDashboard(config) {
@@ -812,8 +899,227 @@ const abDashboard = (function() {
   return { update };
 })();
 
+// --- Instroom / Uitstroom dashboard (combo: staven + lijn) ---
+const iuDashboard = (function() {
+  let chart = null;
+  let buckets = [];     // [{ y, m, key, label, instroom, uitstroom, open }]
+  let scopeData = [];   // zaken na filtering op dienstverlening/team/coach
+
+  // Werkelijk databereik (in maanden als jaar*12+maand). Gebruikt om gemiddelden alleen
+  // te delen door maanden die echt in de dataset voorkomen, niet door lege "toekomst"-maanden
+  // die bij een jaarfilter (bv. heel 2026) wel als bucket worden getoond.
+  const dataRange = (function() {
+    let min = Infinity, max = -Infinity;
+    zaken.forEach(z => {
+      const sYm = z.date.getFullYear() * 12 + (z.date.getMonth() + 1);
+      if (sYm < min) min = sYm;
+      if (sYm > max) max = sYm;
+      if (z.eindDatum) {
+        const eYm = z.eindDatum.getFullYear() * 12 + (z.eindDatum.getMonth() + 1);
+        if (eYm > max) max = eYm;
+      }
+    });
+    return { min, max };
+  })();
+
+  const filterDefs = [
+    { key: 'dienstverlening', selectId: 'iu-filterDienstverlening', allLabel: 'Alle typen', accessor: z => z.dienstverlening },
+    { key: 'year', selectId: 'iu-filterYear', allLabel: 'Alle jaren', accessor: z => z.date.getFullYear(), sortDesc: true },
+    { key: 'month', selectId: 'iu-filterMonth', allLabel: 'Alle maanden', accessor: z => z.date.getMonth() + 1, isMonth: true },
+    { key: 'team', selectId: 'iu-filterTeam', allLabel: 'Alle teams', accessor: z => z.team },
+    { key: 'coach', selectId: 'iu-filterCoach', allLabel: 'Alle coaches', accessor: z => z.coach }
+  ];
+
+  function getFilterValues() {
+    const vals = {};
+    filterDefs.forEach(f => { vals[f.key] = document.getElementById(f.selectId).value; });
+    return vals;
+  }
+
+  function matches(item, filterVals, keys) {
+    return keys.every(k => {
+      const f = filterDefs.find(d => d.key === k);
+      const val = filterVals[k];
+      if (!val) return true;
+      return String(f.accessor(item)) === String(val);
+    });
+  }
+
+  function repopulate(f, currentValue, options) {
+    const sel = document.getElementById(f.selectId);
+    sel.innerHTML = '';
+    const allOpt = document.createElement('option');
+    allOpt.value = '';
+    allOpt.textContent = f.allLabel;
+    sel.appendChild(allOpt);
+    options.forEach(val => {
+      const o = document.createElement('option');
+      o.value = val;
+      o.textContent = f.isMonth ? monthNames[val - 1] : val;
+      if (String(val) === String(currentValue)) o.selected = true;
+      sel.appendChild(o);
+    });
+    if (currentValue && !options.map(String).includes(String(currentValue))) sel.value = '';
+  }
+
+  function updateFilterOptions(filterVals) {
+    filterDefs.forEach(f => {
+      const otherKeys = filterDefs.filter(o => o.key !== f.key).map(o => o.key);
+      const available = zaken.filter(item => matches(item, filterVals, otherKeys));
+      const options = [...new Set(available.map(f.accessor))];
+      options.sort((a, b) => {
+        if (f.isMonth) return a - b;
+        if (f.sortDesc) return b - a;
+        return String(a).localeCompare(String(b));
+      });
+      repopulate(f, filterVals[f.key], options);
+    });
+  }
+
+  function buildBuckets(filterVals) {
+    const yearFilter = filterVals.year;
+    const monthFilter = filterVals.month;
+    let minY, maxY, minM, maxM;
+    if (yearFilter) {
+      minY = maxY = parseInt(yearFilter); minM = 1; maxM = 12;
+    } else {
+      minY = Infinity; maxY = -Infinity; minM = 12; maxM = 1;
+      zaken.forEach(z => {
+        const y = z.date.getFullYear(), m = z.date.getMonth() + 1;
+        if (y < minY || (y === minY && m < minM)) { minY = y; minM = m; }
+        if (y > maxY || (y === maxY && m > maxM)) { maxY = y; maxM = m; }
+      });
+    }
+    const result = [];
+    for (let y = minY; y <= maxY; y++) {
+      const sM = (y === minY) ? minM : 1;
+      const eM = (y === maxY) ? maxM : 12;
+      for (let m = sM; m <= eM; m++) {
+        if (monthFilter && m !== parseInt(monthFilter)) continue;
+        const firstNext = new Date(y, m, 1); // eerste dag van de volgende maand
+        let instroom = 0, uitstroom = 0, open = 0;
+        scopeData.forEach(z => {
+          if (z.date.getFullYear() === y && z.date.getMonth() + 1 === m) instroom++;
+          if (z.eindDatum && z.eindDatum.getFullYear() === y && z.eindDatum.getMonth() + 1 === m) uitstroom++;
+          // open aan einde maand: gestart vóór de volgende maand én nog niet afgesloten in deze of een eerdere maand
+          if (z.date < firstNext && (!z.eindDatum || z.eindDatum >= firstNext)) open++;
+        });
+        result.push({ y, m, key: `${y}-${pad(m)}`, label: `${monthNames[m-1]} ${y}`, instroom, uitstroom, open });
+      }
+    }
+    return result;
+  }
+
+  function update() {
+    updateFilterOptions(getFilterValues());
+    // opnieuw uitlezen: repopulate kan ongeldige selecties hebben gereset
+    const fv = getFilterValues();
+    scopeData = zaken.filter(item => matches(item, fv, ['dienstverlening', 'team', 'coach']));
+    buckets = buildBuckets(fv);
+
+    // Gemiddelden alleen berekenen over maanden die binnen het werkelijke databereik vallen
+    // (zo tellen lege toekomstmaanden bij een jaarfilter niet mee als deler)
+    const realBuckets = buckets.filter(b => {
+      const ym = b.y * 12 + b.m;
+      return ym >= dataRange.min && ym <= dataRange.max;
+    });
+    const denom = realBuckets.length || 1;
+    // Gemiddelde in-/uitstroom: gemiddeld aantal per maand over de getoonde maanden
+    const avgInstroom = Math.round(realBuckets.reduce((s, b) => s + b.instroom, 0) / denom);
+    const avgUitstroom = Math.round(realBuckets.reduce((s, b) => s + b.uitstroom, 0) / denom);
+    // Gemiddeld aantal open zaken: gemiddelde van de open caseload over de getoonde maanden
+    const avgOpen = Math.round(realBuckets.reduce((s, b) => s + b.open, 0) / denom);
+    // Gemiddelde doorlooptijd: gemiddeld aantal dagen dat een zaak open was, voor zaken
+    // die binnen de getoonde periode zijn uitgestroomd (afgesloten)
+    const bucketKeys = new Set(buckets.map(b => b.key));
+    const afgesloten = scopeData.filter(z => z.eindDatum && bucketKeys.has(`${z.eindDatum.getFullYear()}-${pad(z.eindDatum.getMonth() + 1)}`));
+    const avgDoorlooptijd = afgesloten.length
+      ? Math.round(afgesloten.reduce((s, z) => s + (z.eindDatum - z.date) / 86400000, 0) / afgesloten.length)
+      : null;
+    document.getElementById('iu-avgInstroom').textContent = avgInstroom;
+    document.getElementById('iu-avgUitstroom').textContent = avgUitstroom;
+    document.getElementById('iu-avgOpen').textContent = avgOpen;
+    document.getElementById('iu-avgDoorlooptijd').textContent = avgDoorlooptijd != null ? avgDoorlooptijd + ' dgn' : '-';
+
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById('iu-chart'), {
+      type: 'bar',
+      data: {
+        labels: buckets.map(b => b.label),
+        datasets: [
+          { type: 'bar', label: 'Instroom', data: buckets.map(b => b.instroom), backgroundColor: '#008026', hoverBackgroundColor: '#006020', borderRadius: 2, yAxisID: 'y', order: 2 },
+          { type: 'bar', label: 'Uitstroom', data: buckets.map(b => b.uitstroom), backgroundColor: '#e40303', hoverBackgroundColor: '#b50202', borderRadius: 2, yAxisID: 'y', order: 2 },
+          { type: 'line', label: 'Open zaken', data: buckets.map(b => b.open), borderColor: '#0f62fe', backgroundColor: '#0f62fe', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: 0.3, yAxisID: 'y1', order: 1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Sans', size: 11 }, boxWidth: 12, padding: 16 } },
+          tooltip: { backgroundColor: '#161616', titleFont: { family: 'IBM Plex Sans', size: 12 }, bodyFont: { family: 'IBM Plex Sans', size: 12 }, cornerRadius: 0, padding: 12 }
+        },
+        scales: {
+          x: { ticks: { font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' }, grid: { display: false } },
+          y: { beginAtZero: true, position: 'left', title: { display: true, text: 'Instroom / uitstroom', font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' }, ticks: { stepSize: 1, font: { family: 'IBM Plex Sans', size: 12 }, color: '#525252' }, grid: { color: '#e0e0e0' } },
+          y1: { beginAtZero: true, position: 'right', title: { display: true, text: 'Open zaken', font: { family: 'IBM Plex Sans', size: 11 }, color: '#0f62fe' }, ticks: { font: { family: 'IBM Plex Sans', size: 12 }, color: '#0f62fe' }, grid: { drawOnChartArea: false } }
+        },
+        onClick(evt) {
+          const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+          if (pts.length > 0) showDetail(pts[0].index, pts[0].datasetIndex);
+        }
+      }
+    });
+
+    document.getElementById('iu-detailSection').classList.add('hidden');
+  }
+
+  function showDetail(monthIndex, datasetIndex) {
+    const bucket = buckets[monthIndex];
+    if (!bucket) return;
+    const y = bucket.y, m = bucket.m;
+    const firstNext = new Date(y, m, 1);
+    let items, title;
+    if (datasetIndex === 0) {
+      items = scopeData.filter(z => z.date.getFullYear() === y && z.date.getMonth() + 1 === m);
+      title = `Instroom in ${bucket.label} (${items.length})`;
+    } else if (datasetIndex === 1) {
+      items = scopeData.filter(z => z.eindDatum && z.eindDatum.getFullYear() === y && z.eindDatum.getMonth() + 1 === m);
+      title = `Uitstroom in ${bucket.label} (${items.length})`;
+    } else {
+      items = scopeData.filter(z => z.date < firstNext && (!z.eindDatum || z.eindDatum >= firstNext));
+      title = `Open zaken einde ${bucket.label} (${items.length})`;
+    }
+    document.getElementById('iu-detailTitle').textContent = title;
+    const tbody = document.getElementById('iu-detailBody');
+    tbody.innerHTML = '';
+    [...items].sort((a, b) => a.date - b.date).forEach(z => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(z.date)}</td>
+        <td>${z.eindDatum ? formatDate(z.eindDatum) : ''}</td>
+        <td>${z.inwoner}</td>
+        <td>${z.administratienummer}</td>
+        <td>${z.coach}</td>
+        <td>${z.team}</td>
+        <td>${z.dienstverlening}</td>
+        <td>${z.eindDatum ? 'Afgesloten' : 'Open'}</td>`;
+      tbody.appendChild(tr);
+    });
+    const section = document.getElementById('iu-detailSection');
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  filterDefs.forEach(f => {
+    document.getElementById(f.selectId).addEventListener('change', update);
+  });
+
+  return { update };
+})();
+
 // --- Tabs ---
-const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard };
+const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard, instroomuitstroom: iuDashboard };
 let activeView = 'plaatsingen';
 function switchTab(viewId) {
   if (!dashboards[viewId]) return;
@@ -838,7 +1144,7 @@ switchTab(dashboards[hashView] ? hashView : 'plaatsingen');
 // --- Last updated timestamp ---
 const now = new Date();
 const lastUpdated = `Data laatst geactualiseerd: ${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated'].forEach(id => {
+['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated', 'iu-lastUpdated'].forEach(id => {
   document.getElementById(id).textContent = lastUpdated;
 });
 </script>
