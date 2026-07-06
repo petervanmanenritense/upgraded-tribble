@@ -70,7 +70,7 @@ class AanbodResultaatDashboardProviderTest {
             val config = provider.getConfig()
             val filterKeys = config.filters.map { it.key }
             assertFalse("coach" in filterKeys)
-            assertEquals(listOf("year", "team", "aanbodnaam", "afsluitreden"), filterKeys)
+            assertEquals(listOf("typeDienstverlening", "year", "team", "aanbodnaam", "afsluitreden"), filterKeys)
         }
 
         @Test

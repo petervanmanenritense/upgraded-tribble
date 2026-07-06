@@ -30,6 +30,7 @@ class AanbodResultaatDashboardProvider(
         id = id,
         label = label,
         filters = listOf(
+            FilterConfig("typeDienstverlening", "Type dienstverlening"),
             FilterConfig("year", "Jaar"),
             FilterConfig("team", "Team"),
             FilterConfig("aanbodnaam", "Aanbodnaam"),
@@ -62,6 +63,12 @@ class AanbodResultaatDashboardProvider(
 
             // Must have an eindDatum
             predicates.add(cb.isNotNull(root.get<LocalDate>("eindDatum")))
+
+            if (excludeKey != "typeDienstverlening") {
+                filters["typeDienstverlening"]?.takeIf { it.isNotBlank() }?.let { type ->
+                    predicates.add(cb.equal(root.get<String>("typeDienstverlening"), type))
+                }
+            }
 
             // Exclude admin-closed records
             predicates.add(
@@ -102,6 +109,9 @@ class AanbodResultaatDashboardProvider(
 
     override fun getFilterOptions(filters: Map<String, String?>): Map<String, List<String>> {
         val result = mutableMapOf<String, List<String>>()
+
+        val forType = aanbodRepository.findAll(buildSpec(filters, excludeKey = "typeDienstverlening"))
+        result["typeDienstverlening"] = forType.map { it.typeDienstverlening }.distinct().sorted()
 
         val forYear = aanbodRepository.findAll(buildSpec(filters, excludeKey = "year"))
         result["year"] = forYear.map { it.eindDatum!!.year.toString() }.distinct().sorted()

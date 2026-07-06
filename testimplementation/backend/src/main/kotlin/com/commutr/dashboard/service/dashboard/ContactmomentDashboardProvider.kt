@@ -21,6 +21,7 @@ class ContactmomentDashboardProvider(
         id = id,
         label = label,
         filters = listOf(
+            FilterConfig("typeDienstverlening", "Type dienstverlening"),
             FilterConfig("year", "Jaar"),
             FilterConfig("team", "Team"),
             FilterConfig("coach", "Coach"),
@@ -50,6 +51,11 @@ class ContactmomentDashboardProvider(
         return Specification { root, _, cb ->
             val predicates = mutableListOf<Predicate>()
 
+            if (excludeKey != "typeDienstverlening") {
+                filters["typeDienstverlening"]?.takeIf { it.isNotBlank() }?.let { type ->
+                    predicates.add(cb.equal(root.get<String>("typeDienstverlening"), type))
+                }
+            }
             if (excludeKey != "year") {
                 filters["year"]?.takeIf { it.isNotBlank() }?.let { year ->
                     val yearInt = year.toInt()
@@ -89,6 +95,9 @@ class ContactmomentDashboardProvider(
 
     override fun getFilterOptions(filters: Map<String, String?>): Map<String, List<String>> {
         val result = mutableMapOf<String, List<String>>()
+
+        val forType = contactmomentRepository.findAll(buildSpec(filters, excludeKey = "typeDienstverlening"))
+        result["typeDienstverlening"] = forType.map { it.typeDienstverlening }.distinct().sorted()
 
         val forYear = contactmomentRepository.findAll(buildSpec(filters, excludeKey = "year"))
         result["year"] = forYear.map { it.date.year.toString() }.distinct().sorted()

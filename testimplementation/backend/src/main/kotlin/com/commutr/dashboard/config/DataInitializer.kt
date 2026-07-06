@@ -80,9 +80,9 @@ class DataInitializer(
             )
         }
 
-        // Date range: 2024-01 to 2026-03
+        // Date range: 2024-01 to 2026-06
         val startDate = LocalDate.of(2024, 1, 1)
-        val endDate = LocalDate.of(2026, 3, 31)
+        val endDate = LocalDate.of(2026, 6, 30)
         val totalDays = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate).toInt()
 
         fun randomDate(): LocalDate = startDate.plusDays(random.nextInt(totalDays).toLong())

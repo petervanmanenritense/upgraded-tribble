@@ -26,6 +26,9 @@ class Aanbod(
     var startDate: LocalDate = LocalDate.now(),
 
     @Column(nullable = false)
+    var typeDienstverlening: String = "",
+
+    @Column(nullable = false)
     var aanbodnaam: String = "",
 
     @Column(nullable = true)

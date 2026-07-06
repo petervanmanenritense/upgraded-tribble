@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:07" hostname="RITENSE-176.local" time="0.003">
+<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-05-05T09:30:44" hostname="RITENSE-176.local" time="0.003">
   <properties/>
   <testcase name="id and label are correct()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest" time="0.003"/>
-  <system-out><![CDATA[2026-04-08T16:07:07.079+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest]: PlaatsingDashboardProviderTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T16:07:07.081+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest
+  <system-out><![CDATA[2026-05-05T11:30:44.626+02:00  INFO 21043 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest]: PlaatsingDashboardProviderTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-05-05T11:30:44.628+02:00  INFO 21043 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -14,35 +14,35 @@
 
  :: Spring Boot ::                (v3.4.4)
 
-2026-04-08T16:07:07.090+02:00  INFO 81998 --- [    Test worker] c.c.d.s.d.PlaatsingDashboardProviderTest : Starting PlaatsingDashboardProviderTest using Java 21.0.1 with PID 81998 (started by petervanmanen in /Users/petervanmanen/Documents/commutr/plaatsingdashboardpoc/testimplementation/backend)
-2026-04-08T16:07:07.090+02:00  INFO 81998 --- [    Test worker] c.c.d.s.d.PlaatsingDashboardProviderTest : The following 1 profile is active: "test"
-2026-04-08T16:07:07.169+02:00  INFO 81998 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-08T16:07:07.180+02:00  INFO 81998 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 10 ms. Found 6 JPA repository interfaces.
-2026-04-08T16:07:07.183+02:00  INFO 81998 --- [    Test worker] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
-2026-04-08T16:07:07.187+02:00  INFO 81998 --- [    Test worker] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:6f7566b9-c3f1-4420-9dd4-02810f9f44f4;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
-2026-04-08T16:07:07.193+02:00  INFO 81998 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-08T16:07:07.194+02:00  INFO 81998 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-08T16:07:07.197+02:00  INFO 81998 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-08T16:07:07.198+02:00  INFO 81998 --- [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@6a16b724']
+2026-05-05T11:30:44.636+02:00  INFO 21043 --- [    Test worker] c.c.d.s.d.PlaatsingDashboardProviderTest : Starting PlaatsingDashboardProviderTest using Java 21.0.1 with PID 21043 (started by petervanmanen in /Users/petervanmanen/Documents/commutr/plaatsingdashboardpoc/testimplementation/backend)
+2026-05-05T11:30:44.636+02:00  INFO 21043 --- [    Test worker] c.c.d.s.d.PlaatsingDashboardProviderTest : The following 1 profile is active: "test"
+2026-05-05T11:30:44.704+02:00  INFO 21043 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-05T11:30:44.713+02:00  INFO 21043 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 8 ms. Found 6 JPA repository interfaces.
+2026-05-05T11:30:44.717+02:00  INFO 21043 --- [    Test worker] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-05-05T11:30:44.720+02:00  INFO 21043 --- [    Test worker] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:6d2d92d4-466a-40cc-a43a-3d294e659536;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-05-05T11:30:44.727+02:00  INFO 21043 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-05T11:30:44.728+02:00  INFO 21043 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-05-05T11:30:44.731+02:00  INFO 21043 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-05T11:30:44.732+02:00  INFO 21043 --- [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory$EmbeddedDataSourceProxy@6788168c']
 	Database driver: undefined/unknown
 	Database version: 2.3.232
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-04-08T16:07:07.218+02:00  INFO 81998 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-05T11:30:44.751+02:00  INFO 21043 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
 Hibernate: drop table if exists aanbod cascade 
 Hibernate: drop table if exists coaches cascade 
 Hibernate: drop table if exists contactmomenten cascade 
 Hibernate: drop table if exists inwoners cascade 
 Hibernate: drop table if exists plaatsingen cascade 
 Hibernate: drop table if exists teams cascade 
-Hibernate: create table aanbod (eind_datum date, start_date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, aanbodnaam varchar(255) not null, afsluitreden varchar(255), primary key (id))
+Hibernate: create table aanbod (eind_datum date, start_date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, aanbodnaam varchar(255) not null, afsluitreden varchar(255), type_dienstverlening varchar(255) not null, primary key (id))
 Hibernate: create table coaches (id bigint generated by default as identity, team_id bigint not null, full_name varchar(255) not null, primary key (id))
-Hibernate: create table contactmomenten (date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, kanaal varchar(255) not null, onderwerp varchar(255) not null, primary key (id))
+Hibernate: create table contactmomenten (date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, kanaal varchar(255) not null, onderwerp varchar(255) not null, type_dienstverlening varchar(255) not null, primary key (id))
 Hibernate: create table inwoners (birthdate date not null, id bigint generated by default as identity, administratienummer varchar(255) not null unique, full_name varchar(255) not null, primary key (id))
-Hibernate: create table plaatsingen (start_date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, type varchar(255) not null, primary key (id))
+Hibernate: create table plaatsingen (start_date date not null, coach_id bigint not null, id bigint generated by default as identity, inwoner_id bigint not null, team_id bigint not null, afsluitreden varchar(255), soort varchar(255) not null, type varchar(255), zaakstatus varchar(255) not null, primary key (id))
 Hibernate: create table teams (id bigint generated by default as identity, name varchar(255) not null unique, primary key (id))
 Hibernate: alter table if exists aanbod add constraint FKfgmuhwg1fm8glx1nad2g77kd8 foreign key (coach_id) references coaches
 Hibernate: alter table if exists aanbod add constraint FK31pkew2bhdwbncm4lyux5pv9q foreign key (inwoner_id) references inwoners
@@ -54,8 +54,8 @@ Hibernate: alter table if exists contactmomenten add constraint FKonbmlv2bhpa06m
 Hibernate: alter table if exists plaatsingen add constraint FKqw14ngtsc6ol4ho81hpjclvk8 foreign key (coach_id) references coaches
 Hibernate: alter table if exists plaatsingen add constraint FKratvx9c7lc7bgey9hoj1aspx7 foreign key (inwoner_id) references inwoners
 Hibernate: alter table if exists plaatsingen add constraint FKnfnw3spbti6aw8bsvfjg8vagg foreign key (team_id) references teams
-2026-04-08T16:07:07.223+02:00  INFO 81998 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-08T16:07:07.240+02:00  INFO 81998 --- [    Test worker] c.c.d.s.d.PlaatsingDashboardProviderTest : Started PlaatsingDashboardProviderTest in 0.158 seconds (process running for 5.082)
+2026-05-05T11:30:44.756+02:00  INFO 21043 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-05T11:30:44.776+02:00  INFO 21043 --- [    Test worker] c.c.d.s.d.PlaatsingDashboardProviderTest : Started PlaatsingDashboardProviderTest in 0.147 seconds (process running for 5.332)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)

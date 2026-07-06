@@ -6,7 +6,9 @@
       "Bash(gradle wrapper:*)",
       "Bash(./gradlew compileKotlin)",
       "Bash(lsof -ti:8080)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(grep -E \"\\\\.\\(kt|java\\)$\")",
+      "Bash(node *)"
     ]
   }
 }

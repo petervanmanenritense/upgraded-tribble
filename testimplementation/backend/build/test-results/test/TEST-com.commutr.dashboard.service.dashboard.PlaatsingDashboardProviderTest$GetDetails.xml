@@ -1,38 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-08T14:07:07" hostname="RITENSE-176.local" time="0.008">
+<testsuite name="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-05-05T09:30:44" hostname="RITENSE-176.local" time="0.012">
   <properties/>
   <testcase name="respects active filters()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" time="0.003"/>
-  <testcase name="returns records for specified month()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" time="0.002"/>
+  <testcase name="returns records for specified month()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" time="0.003"/>
   <testcase name="detail rows contain all expected fields()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" time="0.002"/>
-  <system-out><![CDATA[2026-04-08T16:07:07.280+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails]: GetDetails does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T16:07:07.282+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails
+  <testcase name="afsluitreden is null when zaakstatus is not Afgerond()" classname="com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails" time="0.002"/>
+  <system-out><![CDATA[2026-05-05T11:30:44.819+02:00  INFO 21043 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails]: GetDetails does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-05-05T11:30:44.821+02:00  INFO 21043 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetDetails
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where p1_0.type=?
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where p1_0.soort=?
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where 1=1
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where 1=1
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into teams (name,id) values (?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where 1=1
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

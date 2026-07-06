@@ -228,18 +228,18 @@
       <select id="ab-filterAanbod"><option value="">Alle aanbod</option></select>
     </div>
     <div class="filter-group">
-      <label for="ab-filterAfsluitreden">Afsluitreden</label>
-      <select id="ab-filterAfsluitreden"><option value="">Alle afsluitredenen</option></select>
+      <label for="ab-filterSubdoel">Subdoel</label>
+      <select id="ab-filterSubdoel"><option value="">Alle subdoelen</option></select>
     </div>
   </div>
   <div class="content">
     <div class="summary">
-      <div class="tile"><div class="tile-value" id="ab-totalCount">0</div><div class="tile-label">Totaal gestart aanbod</div></div>
-      <div class="tile"><div class="tile-value" id="ab-avgPerMonth">0</div><div class="tile-label">Gemiddeld per maand</div></div>
-      <div class="tile"><div class="tile-value" id="ab-topMonth">-</div><div class="tile-label">Beste maand</div></div>
+      <div class="tile"><div class="tile-value" id="ab-behaaldCount">0</div><div class="tile-label">Doel behaald</div></div>
+      <div class="tile"><div class="tile-value" id="ab-deelsCount">0</div><div class="tile-label">Doel deels behaald</div></div>
+      <div class="tile"><div class="tile-value" id="ab-nietCount">0</div><div class="tile-label">Doel niet behaald</div></div>
     </div>
     <div class="chart-tile">
-      <h2>Gestart aanbod per maand (uitgesplitst op aanbodnaam)</h2>
+      <h2>Gestart aanbod per maand (uitgesplitst op afsluitreden)</h2>
       <canvas id="ab-chart" height="120"></canvas>
       <p class="hint">Klik op een staaf om de details te bekijken</p>
     </div>
@@ -247,7 +247,7 @@
       <h2 id="ab-detailTitle">Details</h2>
       <table>
         <thead><tr>
-          <th>Datum start</th><th>Aanbodnaam</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Afsluitreden</th><th>Einddatum</th>
+          <th>Datum start</th><th>Aanbodnaam</th><th>Subdoel</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Afsluitreden</th><th>Einddatum</th>
         </tr></thead>
         <tbody id="ab-detailBody"></tbody>
       </table>
@@ -336,7 +336,7 @@ function generatePlaatsingen() {
   const data = [];
   let adminNr = 1000001;
   for (let year = 2024; year <= 2026; year++) {
-    const maxMonth = year === 2026 ? 3 : 12;
+    const maxMonth = year === 2026 ? 6 : 12;
     for (let month = 1; month <= maxMonth; month++) {
       const count = randInt(8, 25);
       for (let i = 0; i < count; i++) {
@@ -374,7 +374,7 @@ const onderwerpen = ['Voortgangsgesprek', 'Participatiegesprek', 'Leerbaarheidst
 function generateContactmomenten() {
   const data = [];
   for (let year = 2024; year <= 2026; year++) {
-    const maxMonth = year === 2026 ? 3 : 12;
+    const maxMonth = year === 2026 ? 6 : 12;
     for (let month = 1; month <= maxMonth; month++) {
       const count = randInt(30, 80);
       for (let i = 0; i < count; i++) {
@@ -400,10 +400,31 @@ const aanbodnamen = ['Taalcoaching', 'Werkfit traject', 'Participatieplaats', 'O
 const afsluitredenen = ['Doel aanbod behaald', 'Doel aanbod niet behaald', 'Doel aanbod deels behaald', 'Administratief afgesloten', 'Aanbod afgesloten wegens wijzigen leerroute'];
 const excludedAfsluitredenen = ['Administratief afgesloten', 'Aanbod afgesloten wegens wijzigen leerroute'];
 
+// Een aanbod wordt in een dossier altijd voor één subdoel ingezet, maar hetzelfde
+// aanbod kan wel voor meerdere subdoelen bruikbaar zijn. Onderstaande mapping legt
+// per aanbodnaam vast welke subdoelen mogelijk zijn; per record wordt er één gekozen.
+const subdoelenPerAanbod = {
+  'Taalcoaching': ['Taalvaardigheid vergroten', 'Sociaal netwerk versterken'],
+  'Werkfit traject': ['Arbeidsritme opbouwen', 'Werknemersvaardigheden ontwikkelen', 'Zelfvertrouwen versterken'],
+  'Participatieplaats': ['Arbeidsritme opbouwen', 'Werknemersvaardigheden ontwikkelen', 'Sociaal netwerk versterken'],
+  'Orientatie op werk': ['Sollicitatievaardigheden verbeteren', 'Werknemersvaardigheden ontwikkelen'],
+  'Digitale vaardigheden': ['Digitale vaardigheden vergroten'],
+  'Duale inburgering': ['Taalvaardigheid vergroten', 'Werknemersvaardigheden ontwikkelen'],
+  'Entree opleiding': ['Beroepskwalificatie behalen', 'Werknemersvaardigheden ontwikkelen'],
+  'Kort beroepsonderwijs': ['Beroepskwalificatie behalen'],
+  'Sociale activering': ['Sociaal netwerk versterken', 'Arbeidsritme opbouwen', 'Zelfvertrouwen versterken'],
+  'Vrijwilligerswerk': ['Arbeidsritme opbouwen', 'Sociaal netwerk versterken'],
+  'Jobcoaching': ['Werknemersvaardigheden ontwikkelen', 'Zelfvertrouwen versterken'],
+  'Sollicitatietraining': ['Sollicitatievaardigheden verbeteren'],
+  'Budgetcoaching': ['Financiële zelfredzaamheid vergroten'],
+  'MAP-training': ['Zelfvertrouwen versterken', 'Sollicitatievaardigheden verbeteren'],
+  'Ondernemerschapstraject': ['Ondernemerschap ontwikkelen', 'Financiële zelfredzaamheid vergroten']
+};
+
 function generateAanbod() {
   const data = [];
   for (let year = 2024; year <= 2026; year++) {
-    const maxMonth = year === 2026 ? 3 : 12;
+    const maxMonth = year === 2026 ? 6 : 12;
     for (let month = 1; month <= maxMonth; month++) {
       const count = randInt(15, 40);
       for (let i = 0; i < count; i++) {
@@ -411,12 +432,14 @@ function generateAanbod() {
         const afsluitreden = Math.random() < 0.3 ? rand(afsluitredenen) : null;
         const startDt = new Date(year, month - 1, randInt(1, 28));
         const eindDatum = afsluitreden ? new Date(startDt.getTime() + (30 + randInt(0, 180)) * 86400000) : null;
+        const aanbodnaam = rand(aanbodnamen);
         data.push({
           coach: rand(coachesByTeam[team]),
           team,
           date: startDt,
           typeDienstverlening: rand(typenDienstverlening),
-          aanbodnaam: rand(aanbodnamen),
+          aanbodnaam,
+          subdoel: rand(subdoelenPerAanbod[aanbodnaam]),
           inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
           administratienummer: String(randInt(1000000, 9999999)),
           afsluitreden,
@@ -435,9 +458,9 @@ function generateAanbod() {
 function generateZaken() {
   const data = [];
   let adminNr = 2000001;
-  const dataEnd = new Date(2026, 2, 31); // 31-03-2026, einde van de dataset
+  const dataEnd = new Date(2026, 5, 30); // 30-06-2026, einde van de dataset
   for (let year = 2024; year <= 2026; year++) {
-    const maxMonth = year === 2026 ? 3 : 12;
+    const maxMonth = year === 2026 ? 6 : 12;
     for (let month = 1; month <= maxMonth; month++) {
       const count = randInt(10, 28);
       for (let i = 0; i < count; i++) {
@@ -701,8 +724,6 @@ const cmDashboard = createDashboard({
 });
 
 // --- Aanbod dashboard (stacked bar chart) ---
-const abStackColors = ['#e40303','#ff8c00','#ffed00','#008026','#24408e','#732982','#ff6b6b','#ffb347','#fff176','#66bb6a','#5c6bc0','#ab47bc','#ef9a9a','#ffe0b2','#c5e1a5'];
-
 const abDashboard = (function() {
   let chart = null;
   let currentBuckets = [];
@@ -712,8 +733,17 @@ const abDashboard = (function() {
     { key: 'team', selectId: 'ab-filterTeam', allLabel: 'Alle teams', accessor: a => a.team },
     { key: 'coach', selectId: 'ab-filterCoach', allLabel: 'Alle coaches', accessor: a => a.coach },
     { key: 'aanbod', selectId: 'ab-filterAanbod', allLabel: 'Alle aanbod', accessor: a => a.aanbodnaam },
-    { key: 'afsluitreden', selectId: 'ab-filterAfsluitreden', allLabel: 'Alle afsluitredenen', accessor: a => a.afsluitreden || 'Nog actief' }
+    { key: 'subdoel', selectId: 'ab-filterSubdoel', allLabel: 'Alle subdoelen', accessor: a => a.subdoel }
   ];
+
+  // Vaste volgorde en kleuren voor de afsluitreden-segmenten in de staafdiagram
+  const afsluitredenStack = ['Nog actief', 'Doel aanbod behaald', 'Doel aanbod deels behaald', 'Doel aanbod niet behaald'];
+  const afsluitredenColors = {
+    'Nog actief': '#a8a8a8',
+    'Doel aanbod behaald': '#24a148',
+    'Doel aanbod deels behaald': '#f1c21b',
+    'Doel aanbod niet behaald': '#da1e28'
+  };
 
   function getFilterValues() {
     const vals = {};
@@ -799,26 +829,22 @@ const abDashboard = (function() {
       }
     }
 
-    // Summary
-    const total = filtered.length;
-    document.getElementById('ab-totalCount').textContent = total;
-    const months = currentBuckets.length || 1;
-    document.getElementById('ab-avgPerMonth').textContent = Math.round(total / months);
-    if (currentBuckets.length > 0) {
-      const best = currentBuckets.reduce((a, b) => b.items.length > a.items.length ? b : a);
-      document.getElementById('ab-topMonth').textContent = `${best.label} (${best.items.length})`;
-    } else {
-      document.getElementById('ab-topMonth').textContent = '-';
-    }
+    // Summary: totalen per afsluitreden binnen het geselecteerde tijdvak
+    const countReden = reden => filtered.filter(a => a.afsluitreden === reden).length;
+    document.getElementById('ab-behaaldCount').textContent = countReden('Doel aanbod behaald');
+    document.getElementById('ab-deelsCount').textContent = countReden('Doel aanbod deels behaald');
+    document.getElementById('ab-nietCount').textContent = countReden('Doel aanbod niet behaald');
 
-    // Get unique aanbodnamen in filtered data
-    const activeAanbod = [...new Set(filtered.map(a => a.aanbodnaam))].sort();
+    // Stapel de staven op afsluitreden; alleen aanwezige categorieën tonen, in vaste volgorde
+    const redenLabel = a => a.afsluitreden || 'Nog actief';
+    const present = new Set(filtered.map(redenLabel));
+    const activeRedenen = afsluitredenStack.filter(r => present.has(r));
 
     // Build stacked datasets
-    const datasets = activeAanbod.map((naam, i) => ({
-      label: naam,
-      data: currentBuckets.map(b => b.items.filter(a => a.aanbodnaam === naam).length),
-      backgroundColor: abStackColors[i % abStackColors.length],
+    const datasets = activeRedenen.map(reden => ({
+      label: reden,
+      data: currentBuckets.map(b => b.items.filter(a => redenLabel(a) === reden).length),
+      backgroundColor: afsluitredenColors[reden],
       borderRadius: 2
     }));
 
@@ -864,12 +890,12 @@ const abDashboard = (function() {
   function showDetail(monthIndex, datasetIndex) {
     const bucket = currentBuckets[monthIndex];
     if (!bucket) return;
-    const aanbodnaam = chart.data.datasets[datasetIndex]?.label;
+    const reden = chart.data.datasets[datasetIndex]?.label;
     let items = bucket.items;
     let title = `Aanbod in ${bucket.label} (${items.length})`;
-    if (aanbodnaam) {
-      items = items.filter(a => a.aanbodnaam === aanbodnaam);
-      title = `${aanbodnaam} in ${bucket.label} (${items.length})`;
+    if (reden) {
+      items = items.filter(a => (a.afsluitreden || 'Nog actief') === reden);
+      title = `${reden} in ${bucket.label} (${items.length})`;
     }
     document.getElementById('ab-detailTitle').textContent = title;
     const tbody = document.getElementById('ab-detailBody');
@@ -879,6 +905,7 @@ const abDashboard = (function() {
       tr.innerHTML = `
         <td>${formatDate(item.date)}</td>
         <td>${item.aanbodnaam}</td>
+        <td>${item.subdoel}</td>
         <td>${item.inwoner}</td>
         <td>${item.administratienummer}</td>
         <td>${item.coach}</td>

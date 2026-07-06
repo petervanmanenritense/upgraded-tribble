@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">0.010s</div>
+<div class="counter">0.012s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,7 +79,7 @@
 </thead>
 <tr>
 <td class="success">fills gaps between months with zeros()</td>
-<td class="success">0.002s</td>
+<td class="success">0.003s</td>
 <td class="success">passed</td>
 </tr>
 <tr>
@@ -94,7 +94,7 @@
 </tr>
 <tr>
 <td class="success">shows all 12 months when year filter active()</td>
-<td class="success">0.003s</td>
+<td class="success">0.004s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -102,42 +102,42 @@
 <div id="tab1" class="tab">
 <h2>Standard output</h2>
 <span class="code">
-<pre>2026-04-08T16:07:07.259+02:00  INFO 81998 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetChartData]: GetChartData does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-04-08T16:07:07.261+02:00  INFO 81998 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetChartData
+<pre>2026-05-05T11:30:44.795+02:00  INFO 21043 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetChartData]: GetChartData does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-05-05T11:30:44.796+02:00  INFO 21043 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commutr.dashboard.DashboardApplication for test class com.commutr.dashboard.service.dashboard.PlaatsingDashboardProviderTest$GetChartData
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where p1_0.start_date between ? and ?
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where p1_0.start_date between ? and ?
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where 1=1
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where 1=1
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into teams (name,id) values (?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into coaches (full_name,team_id,id) values (?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
 Hibernate: insert into inwoners (administratienummer,birthdate,full_name,id) values (?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: insert into plaatsingen (coach_id,inwoner_id,start_date,team_id,type,id) values (?,?,?,?,?,default)
-Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.team_id,p1_0.type from plaatsingen p1_0 where 1=1
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into plaatsingen (afsluitreden,coach_id,inwoner_id,soort,start_date,team_id,type,zaakstatus,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select p1_0.id,p1_0.afsluitreden,p1_0.coach_id,p1_0.inwoner_id,p1_0.soort,p1_0.start_date,p1_0.team_id,p1_0.type,p1_0.zaakstatus from plaatsingen p1_0 where 1=1
 </pre>
 </span>
 </div>
@@ -149,7 +149,7 @@ Hibernate: select p1_0.id,p1_0.coach_id,p1_0.inwoner_id,p1_0.start_date,p1_0.tea
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 8.5</a> at 8 apr. 2026 16:07:07</p>
+<a href="http://www.gradle.org">Gradle 8.5</a> at 5 mei 2026 11:30:45</p>
 </div>
 </div>
 </body>

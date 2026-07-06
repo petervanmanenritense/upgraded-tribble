@@ -61,7 +61,7 @@ class ContactmomentDashboardProviderTest {
         fun `returns correct filter keys`() {
             val config = provider.getConfig()
             val filterKeys = config.filters.map { it.key }
-            assertEquals(listOf("year", "team", "coach", "kanaal", "onderwerp"), filterKeys)
+            assertEquals(listOf("typeDienstverlening", "year", "team", "coach", "kanaal", "onderwerp"), filterKeys)
         }
 
         @Test

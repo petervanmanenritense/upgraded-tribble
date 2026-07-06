@@ -26,6 +26,9 @@ class Contactmoment(
     var date: LocalDate = LocalDate.now(),
 
     @Column(nullable = false)
+    var typeDienstverlening: String = "",
+
+    @Column(nullable = false)
     var kanaal: String = "",
 
     @Column(nullable = false)
