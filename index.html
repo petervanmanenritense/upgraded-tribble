@@ -49,6 +49,19 @@
     .tile:first-child { border-top-color: #0f62fe; }
     .tile .tile-value { font-size: 2rem; font-weight: 300; color: #161616; line-height: 1.2; }
     .tile .tile-label { font-size: 0.75rem; color: #525252; margin-top: 0.25rem; letter-spacing: 0.32px; }
+    .tile .tile-sub { font-size: 0.75rem; color: #6f6f6f; margin-top: 0.25rem; }
+    .tile[title] { cursor: help; }
+
+    /* Section heading (snapshot dashboards) */
+    .section-head { font-size: 0.875rem; font-weight: 600; color: #161616; margin: 0.5rem 0 0.75rem; letter-spacing: 0.16px; }
+    .section-head:first-child { margin-top: 0; }
+
+    /* Proportion bar */
+    .pct-bar { display: flex; height: 2.25rem; overflow: hidden; background: #e0e0e0; margin: 0.5rem 0 1rem; }
+    .pct-bar .seg { display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 0.8125rem; font-weight: 600; white-space: nowrap; transition: width 0.3s; }
+    .pct-legend { display: flex; gap: 1.5rem; font-size: 0.75rem; color: #525252; }
+    .pct-legend span { display: inline-flex; align-items: center; gap: 0.375rem; }
+    .pct-legend i { width: 0.75rem; height: 0.75rem; display: inline-block; }
 
     /* Chart tile */
     .chart-tile { background: #ffffff; padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -94,6 +107,7 @@
     <button class="tab-btn" data-view="aanbod">Aanbod</button>
     <button class="tab-btn" data-view="instroomuitstroom">Instroom / Uitstroom</button>
     <button class="tab-btn" data-view="afsluit">Afsluit</button>
+    <button class="tab-btn" data-view="inburgeringsfase">Inburgeringsfase</button>
   </div>
 </div>
 
@@ -350,6 +364,64 @@
   </div>
 </div>
 
+<!-- INBURGERINGSFASE VIEW -->
+<div class="view" id="view-inburgeringsfase">
+  <div class="content">
+    <h2 class="section-head">Actieve inburgeraars &amp; PIP-status</h2>
+    <div class="summary">
+      <div class="tile" title="Totaal aantal actieve inburgeraars">
+        <div class="tile-value" id="ib-A">0</div>
+        <div class="tile-label">Inburgeraars in beeld</div>
+        <div class="tile-sub">Actieve inburgeraars</div>
+      </div>
+      <div class="tile" title="Totaal aantal inburgeraars zonder PIP">
+        <div class="tile-value" id="ib-B">0</div>
+        <div class="tile-label">Nog zonder plan</div>
+        <div class="tile-sub">Zonder PIP</div>
+      </div>
+      <div class="tile" title="Totaal aantal inburgeraars met PIP zonder verlenging">
+        <div class="tile-value" id="ib-C">0</div>
+        <div class="tile-label">Volgens plan</div>
+        <div class="tile-sub">Met PIP, zonder verlenging</div>
+      </div>
+      <div class="tile" title="Totaal aantal inburgeraars met PIP met verlenging">
+        <div class="tile-value" id="ib-D">0</div>
+        <div class="tile-label">Extra tijd genomen</div>
+        <div class="tile-sub">Met PIP, met verlenging</div>
+      </div>
+    </div>
+
+    <h2 class="section-head">Eerste PIP's — laatste 30 dagen</h2>
+    <div class="summary">
+      <div class="tile" title="Totaal aantal eerste PIP's opgesteld in de laatste 30 dagen">
+        <div class="tile-value" id="ib-E">0</div>
+        <div class="tile-label">Eerste PIP's laatste 30 dagen</div>
+      </div>
+      <div class="tile" title="Totaal aantal eerste PIP's opgesteld in de laatste 30 dagen dat binnen 10 weken na start van het dossier is opgesteld">
+        <div class="tile-value" id="ib-F">0</div>
+        <div class="tile-label">Binnen 10 weken na dossierstart</div>
+      </div>
+      <div class="tile" title="Totaal aantal eerste PIP's opgesteld in de laatste 30 dagen niet binnen 10 weken na start van het dossier is opgesteld">
+        <div class="tile-value" id="ib-G">0</div>
+        <div class="tile-label">Niet binnen 10 weken na dossierstart</div>
+      </div>
+    </div>
+
+    <div class="chart-tile" title="Aandeel van de eerste PIP's uit de laatste 30 dagen (E) dat wel (F) versus niet (G) binnen 10 weken na dossierstart is opgesteld">
+      <h2>Tijdigheid eerste PIP <span id="ib-pctSummary" style="font-weight:400;color:#6f6f6f"></span></h2>
+      <div class="pct-bar">
+        <div class="seg" id="ib-segF" style="background:#24a148;width:0"></div>
+        <div class="seg" id="ib-segG" style="background:#da1e28;width:0"></div>
+      </div>
+      <div class="pct-legend">
+        <span><i style="background:#24a148"></i>Binnen 10 weken — <strong id="ib-pctF" style="margin-left:0.25rem">0%</strong></span>
+        <span><i style="background:#da1e28"></i>Niet binnen 10 weken — <strong id="ib-pctG" style="margin-left:0.25rem">0%</strong></span>
+      </div>
+    </div>
+    <div class="last-updated" id="ib-lastUpdated"></div>
+  </div>
+</div>
+
 <script>
 // --- Shared ---
 const teamsList = ['Team Volwassenen', 'Team Inburgering', 'Team Partners', 'Team Maatschappelijk Fit'];
@@ -567,11 +639,54 @@ function generateAfsluitZaken() {
   return data;
 }
 
+// --- Inburgeringsfase data (momentopname van actieve inburgeraars) ---
+// Elke inburgeraar heeft een dossierstartdatum en een PIP-status (geen PIP, PIP zonder
+// verlenging, of PIP met verlenging). Voor inburgeraars met een PIP leggen we de datum
+// van de eerste PIP vast en of die binnen 10 weken (70 dagen) na dossierstart is opgesteld.
+function generateInburgeraars() {
+  const data = [];
+  let adminNr = 4000001;
+  const today = new Date();
+  const total = randInt(300, 360);
+  for (let i = 0; i < total; i++) {
+    const team = rand(teamsList);
+    const r = Math.random();
+    let pipStatus, eerstePipDatum = null, verlenging = false, dossierStart;
+    if (r < 0.18) {
+      // Zonder PIP: dossier recent gestart, nog geen PIP opgesteld
+      dossierStart = new Date(today.getTime() - randInt(1, 120) * 86400000);
+      pipStatus = 'geen';
+    } else {
+      // Met PIP: bepaal wanneer de eerste PIP is opgesteld en de dossierstart daarvoor
+      const recent = Math.random() < 0.14;                 // eerste PIP in laatste 30 dagen
+      const pipDagenGeleden = recent ? randInt(0, 29) : randInt(31, 600);
+      const opstelNaDagen = randInt(15, 120);              // dagen tussen dossierstart en eerste PIP
+      eerstePipDatum = new Date(today.getTime() - pipDagenGeleden * 86400000);
+      dossierStart = new Date(eerstePipDatum.getTime() - opstelNaDagen * 86400000);
+      verlenging = Math.random() < 0.35;
+      pipStatus = verlenging ? 'metVerlenging' : 'zonderVerlenging';
+    }
+    data.push({
+      dossierStart,
+      eerstePipDatum,
+      pipStatus,
+      verlenging,
+      binnen10Weken: eerstePipDatum ? (eerstePipDatum - dossierStart) / 86400000 <= 70 : null,
+      inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
+      administratienummer: String(adminNr++),
+      team,
+      coach: rand(coachesByTeam[team])
+    });
+  }
+  return data;
+}
+
 const plaatsingen = generatePlaatsingen();
 const contactmomenten = generateContactmomenten();
 const aanbodData = generateAanbod();
 const zaken = generateZaken();
 const afsluitZaken = generateAfsluitZaken();
+const inburgeraars = generateInburgeraars();
 
 // --- Generic dashboard engine ---
 function createDashboard(config) {
@@ -1453,8 +1568,44 @@ const afDashboard = (function() {
   return { update };
 })();
 
+// --- Inburgeringsfase dashboard (momentopname, geen filters) ---
+const ibDashboard = (function() {
+  function update() {
+    const today = new Date();
+    const A = inburgeraars.length;
+    const B = inburgeraars.filter(x => x.pipStatus === 'geen').length;
+    const C = inburgeraars.filter(x => x.pipStatus === 'zonderVerlenging').length;
+    const D = inburgeraars.filter(x => x.pipStatus === 'metVerlenging').length;
+    const recent = inburgeraars.filter(x => x.eerstePipDatum && (today - x.eerstePipDatum) / 86400000 <= 30);
+    const E = recent.length;
+    const F = recent.filter(x => x.binnen10Weken).length;
+    const G = E - F;
+    const pctF = E ? Math.round(F / E * 100) : 0;
+    const pctG = E ? 100 - pctF : 0;
+
+    document.getElementById('ib-A').textContent = A;
+    document.getElementById('ib-B').textContent = B;
+    document.getElementById('ib-C').textContent = C;
+    document.getElementById('ib-D').textContent = D;
+    document.getElementById('ib-E').textContent = E;
+    document.getElementById('ib-F').textContent = F;
+    document.getElementById('ib-G').textContent = G;
+
+    const segF = document.getElementById('ib-segF');
+    const segG = document.getElementById('ib-segG');
+    segF.style.width = pctF + '%';
+    segG.style.width = pctG + '%';
+    segF.textContent = pctF >= 8 ? pctF + '%' : '';
+    segG.textContent = pctG >= 8 ? pctG + '%' : '';
+    document.getElementById('ib-pctF').textContent = pctF + '%';
+    document.getElementById('ib-pctG').textContent = pctG + '%';
+    document.getElementById('ib-pctSummary').textContent = E ? `— ${F} van ${E} op tijd` : '— geen eerste PIP\'s in de laatste 30 dagen';
+  }
+  return { update };
+})();
+
 // --- Tabs ---
-const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard, instroomuitstroom: iuDashboard, afsluit: afDashboard };
+const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard, instroomuitstroom: iuDashboard, afsluit: afDashboard, inburgeringsfase: ibDashboard };
 let activeView = 'plaatsingen';
 function switchTab(viewId) {
   if (!dashboards[viewId]) return;
@@ -1479,7 +1630,7 @@ switchTab(dashboards[hashView] ? hashView : 'plaatsingen');
 // --- Last updated timestamp ---
 const now = new Date();
 const lastUpdated = `Data laatst geactualiseerd: ${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated', 'iu-lastUpdated', 'af-lastUpdated'].forEach(id => {
+['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated', 'iu-lastUpdated', 'af-lastUpdated', 'ib-lastUpdated'].forEach(id => {
   document.getElementById(id).textContent = lastUpdated;
 });
 </script>
