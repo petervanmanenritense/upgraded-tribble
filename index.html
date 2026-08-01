@@ -93,6 +93,7 @@
     <button class="tab-btn" data-view="contactmomenten">Contactmomenten</button>
     <button class="tab-btn" data-view="aanbod">Aanbod</button>
     <button class="tab-btn" data-view="instroomuitstroom">Instroom / Uitstroom</button>
+    <button class="tab-btn" data-view="afsluit">Afsluit</button>
   </div>
 </div>
 
@@ -305,6 +306,50 @@
   </div>
 </div>
 
+<!-- AFSLUIT VIEW -->
+<div class="view" id="view-afsluit">
+  <div class="filters">
+    <div class="filter-group">
+      <label for="af-filterDienstverlening">Dienstverlening</label>
+      <select id="af-filterDienstverlening"><option value="">Alle typen</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="af-filterYear">Jaar</label>
+      <select id="af-filterYear"><option value="">Alle jaren</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="af-filterTeam">Team</label>
+      <select id="af-filterTeam"><option value="">Alle teams</option></select>
+    </div>
+    <div class="filter-group">
+      <label for="af-filterAfsluitreden">Afsluitreden</label>
+      <select id="af-filterAfsluitreden"><option value="">Alle afsluitredenen</option></select>
+    </div>
+  </div>
+  <div class="content">
+    <div class="summary">
+      <div class="tile"><div class="tile-value" id="af-totalCount">0</div><div class="tile-label">Totaal afgesloten zaken</div></div>
+      <div class="tile"><div class="tile-value" id="af-avgPerMonth">0</div><div class="tile-label">Gemiddeld afgesloten per maand</div></div>
+      <div class="tile"><div class="tile-value" id="af-avgDoorlooptijd">-</div><div class="tile-label">Gemiddelde doorlooptijd</div></div>
+    </div>
+    <div class="chart-tile">
+      <h2>Afgesloten zaken per maand (uitgesplitst op afsluitreden) en gemiddelde doorlooptijd</h2>
+      <canvas id="af-chart" height="110"></canvas>
+      <p class="hint">Klik op een staaf of lijnpunt om de details te bekijken</p>
+    </div>
+    <div class="table-section hidden" id="af-detailSection">
+      <h2 id="af-detailTitle">Details</h2>
+      <table>
+        <thead><tr>
+          <th>Startdatum</th><th>Afsluitdatum</th><th>Inwoner</th><th>Administratienr.</th><th>Coach</th><th>Team</th><th>Dienstverlening</th><th>Afsluitreden</th><th>Doorlooptijd (dgn)</th>
+        </tr></thead>
+        <tbody id="af-detailBody"></tbody>
+      </table>
+    </div>
+    <div class="last-updated" id="af-lastUpdated"></div>
+  </div>
+</div>
+
 <script>
 // --- Shared ---
 const teamsList = ['Team Volwassenen', 'Team Inburgering', 'Team Partners', 'Team Maatschappelijk Fit'];
@@ -487,10 +532,46 @@ function generateZaken() {
   return data;
 }
 
+// --- Afsluit data (afgesloten zaken) ---
+// Elke zaak is afgesloten met een afsluitreden (op basis van het zaakresultaat).
+// De doorlooptijd is het aantal dagen tussen start- en afsluitdatum. We genereren
+// per afsluitmaand, zodat elke maand goed gevuld is met afgesloten zaken.
+const afsluitredenenZaak = ['Uitgestroomd naar werk', 'Uitgestroomd naar opleiding', 'Verhuisd', 'Overleden', 'Aanvraag ingetrokken', 'Geen recht (meer)', 'Handhaving / maatregel'];
+
+function generateAfsluitZaken() {
+  const data = [];
+  let adminNr = 3000001;
+  for (let year = 2024; year <= 2026; year++) {
+    const maxMonth = year === 2026 ? 6 : 12;
+    for (let month = 1; month <= maxMonth; month++) {
+      const count = randInt(8, 22);
+      for (let i = 0; i < count; i++) {
+        const team = rand(teamsList);
+        const eindDatum = new Date(year, month - 1, randInt(1, 28));
+        const doorlooptijd = randInt(20, 540); // dagen tussen start en afsluiting
+        const start = new Date(eindDatum.getTime() - doorlooptijd * 86400000);
+        data.push({
+          coach: rand(coachesByTeam[team]),
+          team,
+          date: start,
+          eindDatum,
+          dienstverlening: rand(typenDienstverlening),
+          afsluitreden: rand(afsluitredenenZaak),
+          doorlooptijd,
+          inwoner: `${rand(firstNames)} ${rand(lastNames)}`,
+          administratienummer: String(adminNr++)
+        });
+      }
+    }
+  }
+  return data;
+}
+
 const plaatsingen = generatePlaatsingen();
 const contactmomenten = generateContactmomenten();
 const aanbodData = generateAanbod();
 const zaken = generateZaken();
+const afsluitZaken = generateAfsluitZaken();
 
 // --- Generic dashboard engine ---
 function createDashboard(config) {
@@ -1145,8 +1226,235 @@ const iuDashboard = (function() {
   return { update };
 })();
 
+// --- Afsluit dashboard (gestapelde staven op afsluitreden + lijn gemiddelde doorlooptijd) ---
+const afDashboard = (function() {
+  let chart = null;
+  let currentBuckets = [];   // [{ y, m, key, label, items }] gebucket op afsluitmaand
+  let filtered = [];
+
+  const filterDefs = [
+    { key: 'dienstverlening', selectId: 'af-filterDienstverlening', allLabel: 'Alle typen', accessor: z => z.dienstverlening },
+    { key: 'year', selectId: 'af-filterYear', allLabel: 'Alle jaren', accessor: z => z.eindDatum.getFullYear(), sortDesc: true },
+    { key: 'team', selectId: 'af-filterTeam', allLabel: 'Alle teams', accessor: z => z.team },
+    { key: 'afsluitreden', selectId: 'af-filterAfsluitreden', allLabel: 'Alle afsluitredenen', accessor: z => z.afsluitreden }
+  ];
+
+  // Vaste volgorde en kleuren voor de afsluitreden-segmenten in de staafdiagram
+  const afsluitredenColors = {
+    'Uitgestroomd naar werk': '#24a148',
+    'Uitgestroomd naar opleiding': '#0072c3',
+    'Verhuisd': '#8a3ffc',
+    'Overleden': '#6f6f6f',
+    'Aanvraag ingetrokken': '#ff832b',
+    'Geen recht (meer)': '#da1e28',
+    'Handhaving / maatregel': '#d12771'
+  };
+
+  function getFilterValues() {
+    const vals = {};
+    filterDefs.forEach(f => { vals[f.key] = document.getElementById(f.selectId).value; });
+    return vals;
+  }
+
+  function applyFilters(data, filterVals) {
+    return data.filter(item => filterDefs.every(f => {
+      const val = filterVals[f.key];
+      if (!val) return true;
+      return String(f.accessor(item)) === val;
+    }));
+  }
+
+  function repopulate(selectId, currentValue, options, allLabel) {
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = '';
+    const allOpt = document.createElement('option');
+    allOpt.value = '';
+    allOpt.textContent = allLabel;
+    sel.appendChild(allOpt);
+    options.forEach(val => {
+      const o = document.createElement('option');
+      o.value = val;
+      o.textContent = val;
+      if (String(val) === String(currentValue)) o.selected = true;
+      sel.appendChild(o);
+    });
+    if (currentValue && !options.map(String).includes(String(currentValue))) sel.value = '';
+  }
+
+  function updateFilterOptions(filterVals) {
+    filterDefs.forEach(f => {
+      const otherFilters = filterDefs.filter(o => o.key !== f.key);
+      const available = afsluitZaken.filter(item =>
+        otherFilters.every(o => {
+          const val = filterVals[o.key];
+          if (!val) return true;
+          return String(o.accessor(item)) === val;
+        })
+      );
+      const options = [...new Set(available.map(f.accessor))].map(String).sort((a, b) => {
+        if (f.sortDesc) return b - a;
+        return a.localeCompare(b);
+      });
+      repopulate(f.selectId, filterVals[f.key], options, f.allLabel);
+    });
+  }
+
+  function update() {
+    const filterVals = getFilterValues();
+    updateFilterOptions(filterVals);
+    filtered = applyFilters(afsluitZaken, getFilterValues());
+
+    // Bucket op afsluitmaand (eindDatum)
+    const monthMap = {};
+    filtered.forEach(item => {
+      const d = item.eindDatum;
+      const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+      if (!monthMap[key]) monthMap[key] = [];
+      monthMap[key].push(item);
+    });
+    let minY = Infinity, maxY = -Infinity, minM = 12, maxM = 1;
+    afsluitZaken.forEach(item => {
+      const y = item.eindDatum.getFullYear(), m = item.eindDatum.getMonth() + 1;
+      if (y < minY || (y === minY && m < minM)) { minY = y; minM = m; }
+      if (y > maxY || (y === maxY && m > maxM)) { maxY = y; maxM = m; }
+    });
+    const yearFilter = getFilterValues().year;
+    if (yearFilter) {
+      const fy = parseInt(yearFilter);
+      minY = fy; minM = 1;
+      maxY = fy; maxM = 12;
+    }
+    currentBuckets = [];
+    for (let y = minY; y <= maxY; y++) {
+      const startM = (y === minY) ? minM : 1;
+      const endM = (y === maxY) ? maxM : 12;
+      for (let m = startM; m <= endM; m++) {
+        const key = `${y}-${pad(m)}`;
+        currentBuckets.push({ y, m, key, label: `${monthNames[m-1]} ${y}`, items: monthMap[key] || [] });
+      }
+    }
+
+    // Samenvatting
+    const total = filtered.length;
+    document.getElementById('af-totalCount').textContent = total;
+    // Deler = maanden met werkelijk afgesloten zaken (lege toekomstmaanden bij jaarfilter tellen niet mee)
+    const gevuldeMaanden = currentBuckets.filter(b => b.items.length > 0).length || 1;
+    document.getElementById('af-avgPerMonth').textContent = Math.round(total / gevuldeMaanden);
+    const avgDoorlooptijd = total
+      ? Math.round(filtered.reduce((s, z) => s + z.doorlooptijd, 0) / total)
+      : null;
+    document.getElementById('af-avgDoorlooptijd').textContent = avgDoorlooptijd != null ? avgDoorlooptijd + ' dgn' : '-';
+
+    // Gestapelde datasets: alleen aanwezige afsluitredenen tonen, in vaste volgorde
+    const present = new Set(filtered.map(z => z.afsluitreden));
+    const activeRedenen = afsluitredenenZaak.filter(r => present.has(r));
+    const barDatasets = activeRedenen.map(reden => ({
+      type: 'bar',
+      label: reden,
+      data: currentBuckets.map(b => b.items.filter(z => z.afsluitreden === reden).length),
+      backgroundColor: afsluitredenColors[reden] || '#a8a8a8',
+      borderRadius: 2,
+      stack: 'afsluit',
+      yAxisID: 'y',
+      order: 2
+    }));
+
+    // Lijn: gemiddelde doorlooptijd (dagen) van alle afgesloten zaken in die maand
+    const doorlooptijdLijn = currentBuckets.map(b =>
+      b.items.length ? Math.round(b.items.reduce((s, z) => s + z.doorlooptijd, 0) / b.items.length) : null
+    );
+
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById('af-chart'), {
+      type: 'bar',
+      data: {
+        labels: currentBuckets.map(b => b.label),
+        datasets: [
+          ...barDatasets,
+          {
+            type: 'line',
+            label: 'Gem. doorlooptijd (dgn)',
+            data: doorlooptijdLijn,
+            borderColor: '#161616',
+            backgroundColor: '#161616',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.3,
+            spanGaps: true,
+            yAxisID: 'y1',
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: true, position: 'bottom', labels: { font: { family: 'IBM Plex Sans', size: 11 }, boxWidth: 12, padding: 16 } },
+          tooltip: { backgroundColor: '#161616', titleFont: { family: 'IBM Plex Sans', size: 12 }, bodyFont: { family: 'IBM Plex Sans', size: 12 }, cornerRadius: 0, padding: 12 }
+        },
+        scales: {
+          x: { stacked: true, ticks: { font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' }, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, position: 'left', title: { display: true, text: 'Afgesloten zaken', font: { family: 'IBM Plex Sans', size: 11 }, color: '#525252' }, ticks: { stepSize: 1, font: { family: 'IBM Plex Sans', size: 12 }, color: '#525252' }, grid: { color: '#e0e0e0' } },
+          y1: { beginAtZero: true, position: 'right', title: { display: true, text: 'Gem. doorlooptijd (dgn)', font: { family: 'IBM Plex Sans', size: 11 }, color: '#161616' }, ticks: { font: { family: 'IBM Plex Sans', size: 12 }, color: '#161616' }, grid: { drawOnChartArea: false } }
+        },
+        onClick(evt) {
+          const pts = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+          if (pts.length > 0) {
+            const el = pts[0];
+            showDetail(el.index, chart.data.datasets[el.datasetIndex]);
+          }
+        }
+      }
+    });
+
+    document.getElementById('af-detailSection').classList.add('hidden');
+  }
+
+  function showDetail(monthIndex, dataset) {
+    const bucket = currentBuckets[monthIndex];
+    if (!bucket) return;
+    let items = bucket.items;
+    let title;
+    if (dataset && dataset.type === 'bar') {
+      items = items.filter(z => z.afsluitreden === dataset.label);
+      title = `${dataset.label} in ${bucket.label} (${items.length})`;
+    } else {
+      const gem = items.length ? Math.round(items.reduce((s, z) => s + z.doorlooptijd, 0) / items.length) : 0;
+      title = `Afgesloten zaken in ${bucket.label} (${items.length}) — gem. doorlooptijd ${gem} dgn`;
+    }
+    document.getElementById('af-detailTitle').textContent = title;
+    const tbody = document.getElementById('af-detailBody');
+    tbody.innerHTML = '';
+    [...items].sort((a, b) => a.eindDatum - b.eindDatum).forEach(z => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formatDate(z.date)}</td>
+        <td>${formatDate(z.eindDatum)}</td>
+        <td>${z.inwoner}</td>
+        <td>${z.administratienummer}</td>
+        <td>${z.coach}</td>
+        <td>${z.team}</td>
+        <td>${z.dienstverlening}</td>
+        <td>${z.afsluitreden}</td>
+        <td>${z.doorlooptijd}</td>`;
+      tbody.appendChild(tr);
+    });
+    const section = document.getElementById('af-detailSection');
+    section.classList.remove('hidden');
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  filterDefs.forEach(f => {
+    document.getElementById(f.selectId).addEventListener('change', update);
+  });
+
+  return { update };
+})();
+
 // --- Tabs ---
-const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard, instroomuitstroom: iuDashboard };
+const dashboards = { plaatsingen: plDashboard, contactmomenten: cmDashboard, aanbod: abDashboard, instroomuitstroom: iuDashboard, afsluit: afDashboard };
 let activeView = 'plaatsingen';
 function switchTab(viewId) {
   if (!dashboards[viewId]) return;
@@ -1171,7 +1479,7 @@ switchTab(dashboards[hashView] ? hashView : 'plaatsingen');
 // --- Last updated timestamp ---
 const now = new Date();
 const lastUpdated = `Data laatst geactualiseerd: ${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated', 'iu-lastUpdated'].forEach(id => {
+['pl-lastUpdated', 'cm-lastUpdated', 'ab-lastUpdated', 'iu-lastUpdated', 'af-lastUpdated'].forEach(id => {
   document.getElementById(id).textContent = lastUpdated;
 });
 </script>
